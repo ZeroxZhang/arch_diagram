@@ -13,11 +13,11 @@
     }
 
     body {
-      font-family: 'JetBrains Mono', monospace;
-      background: #020617;
+      font-family: 'SimHei', 'Microsoft YaHei', 'PingFang SC', 'JetBrains Mono', monospace;
+      background: #f8fafc;
       min-height: 100vh;
       padding: 2rem;
-      color: white;
+      color: #1e293b;
     }
 
     .container {
@@ -27,46 +27,29 @@
 
     .header {
       margin-bottom: 2rem;
-    }
-
-    .header-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .pulse-dot {
-      width: 12px;
-      height: 12px;
-      background: #22d3ee;
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      text-align: center;
     }
 
     h1 {
-      font-size: 1.5rem;
+      font-size: 2rem;
       font-weight: 700;
       letter-spacing: -0.025em;
+      color: #0f172a;
     }
 
     .subtitle {
-      color: #94a3b8;
+      color: #64748b;
       font-size: 0.875rem;
-      margin-left: 1.75rem;
+      margin-top: 0.5rem;
     }
 
     .diagram-container {
-      background: rgba(15, 23, 42, 0.5);
+      background: #ffffff;
       border-radius: 1rem;
-      border: 1px solid #1e293b;
+      border: 1px solid #e2e8f0;
       padding: 1.5rem;
       overflow-x: auto;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     svg {
@@ -83,10 +66,11 @@
     }
 
     .card {
-      background: rgba(15, 23, 42, 0.5);
+      background: #ffffff;
       border-radius: 0.75rem;
-      border: 1px solid #1e293b;
+      border: 1px solid #e2e8f0;
       padding: 1.25rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
     .card-header {
@@ -102,23 +86,24 @@
       border-radius: 50%;
     }
 
-    .card-dot.cyan { background: #22d3ee; }
-    .card-dot.emerald { background: #34d399; }
-    .card-dot.violet { background: #a78bfa; }
-    .card-dot.amber { background: #fbbf24; }
-    .card-dot.rose { background: #fb7185; }
-    .card-dot.orange { background: #fb923c; }
-    .card-dot.purple { background: #c084fc; }
-    .card-dot.blue { background: #60a5fa; }
+    .card-dot.cyan { background: #0891b2; }
+    .card-dot.emerald { background: #059669; }
+    .card-dot.violet { background: #7c3aed; }
+    .card-dot.amber { background: #d97706; }
+    .card-dot.rose { background: #e11d48; }
+    .card-dot.orange { background: #ea580c; }
+    .card-dot.purple { background: #9333ea; }
+    .card-dot.blue { background: #2563eb; }
 
     .card h3 {
       font-size: 0.875rem;
       font-weight: 600;
+      color: #1e293b;
     }
 
     .card ul {
       list-style: none;
-      color: #94a3b8;
+      color: #64748b;
       font-size: 0.75rem;
     }
 
@@ -129,7 +114,7 @@
     .footer {
       text-align: center;
       margin-top: 1.5rem;
-      color: #475569;
+      color: #94a3b8;
       font-size: 0.75rem;
     }
   </style>
@@ -138,10 +123,7 @@
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <div class="header-row">
-        <div class="pulse-dot"></div>
-        <h1>[PROJECT NAME] Architecture</h1>
-      </div>
+      <h1>[PROJECT NAME] Architecture</h1>
       <p class="subtitle">[Subtitle description]</p>
     </div>
 
@@ -152,7 +134,7 @@
         [Users]        x=40,y=280   W=120,H=60  → CloudFront
         [CloudFront]   x=220,y=280  W=120,H=60  → ALB
         [ALB]          x=400,y=280  W=120,H=60  → API Server
-        [API Server]   x=580,y=280  W=140,H=60  → DB, →Redis
+        [API Server]   x=580,y=280  W=140,H=60  → DB, →Redis (bus-style from right edge)
         [DB]           x=780,y=240  W=120,H=60  → (none)
         [Redis]        x=780,y=340  W=120,H=60  → (none)
         [Auth]         x=580,y=420  W=140,H=60  → DB (dashed)
@@ -164,24 +146,28 @@
             <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
           </marker>
           <marker id="arrowhead-emerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#34d399" />
+            <polygon points="0 0, 10 3.5, 0 7" fill="#059669" />
           </marker>
           <marker id="arrowhead-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185" />
+            <polygon points="0 0, 10 3.5, 0 7" fill="#e11d48" />
+          </marker>
+          <marker id="arrowhead-violet" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed" />
           </marker>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
           </pattern>
         </defs>
 
         <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="#ffffff" />
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- =================================================================
              REGION BOUNDARY (draw arrows AFTER this, BEFORE component boxes)
              ================================================================= -->
-        <rect x="200" y="40" width="740" height="540" rx="12" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
-        <text x="212" y="58" fill="#fbbf24" font-size="10" font-weight="600">AWS Region: us-west-2</text>
+        <rect x="200" y="40" width="740" height="460" rx="12" fill="rgba(255, 251, 235, 0.3)" stroke="#d97706" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="212" y="58" fill="#92400e" font-size="10" font-weight="600">AWS Region: us-west-2</text>
 
         <!-- =================================================================
              ARROWS (drawn BEFORE component boxes so they render behind)
@@ -189,101 +175,108 @@
 
         <!-- Users → CloudFront (standard horizontal) -->
         <line x1="160" y1="310" x2="218" y2="310" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <text x="189" y="302" fill="#94a3b8" font-size="9" text-anchor="middle">HTTPS</text>
+        <text x="189" y="302" fill="#64748b" font-size="9" text-anchor="middle">HTTPS</text>
 
         <!-- CloudFront → ALB (standard horizontal) -->
         <line x1="340" y1="310" x2="398" y2="310" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
         <!-- ALB → API Server (standard horizontal) -->
-        <line x1="520" y1="310" x2="578" y2="310" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead-emerald)"/>
-        <text x="549" y="302" fill="#94a3b8" font-size="9" text-anchor="middle">TCP</text>
+        <line x1="520" y1="310" x2="578" y2="310" stroke="#059669" stroke-width="1.5" marker-end="url(#arrowhead-emerald)"/>
+        <text x="549" y="302" fill="#64748b" font-size="9" text-anchor="middle">TCP</text>
 
-        <!-- API Server → DB (horizontal, target slightly above) -->
-        <path d="M 720 300 L 740 300 L 740 262 L 778 262" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <text x="754" y="274" fill="#94a3b8" font-size="8">SQL</text>
+        <!-- API Server → DB + Redis (bus-style from right edge center) -->
+        <!-- Common exit point: (720, 310), Branch point: x=740 -->
+        <path d="M 720,310 L 740,310 L 740,270 L 778,270" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="754" y="264" fill="#64748b" font-size="8">SQL</text>
 
-        <!-- API Server → Redis (horizontal, target slightly below) -->
-        <path d="M 720 320 L 740 320 L 740 362 L 778 362" fill="none" stroke="#c084fc" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <text x="754" y="354" fill="#94a3b8" font-size="8">TCP</text>
+        <path d="M 720,310 L 740,310 L 740,370 L 778,370" fill="none" stroke="#9333ea" stroke-width="1.5" marker-end="url(#arrowhead-violet)"/>
+        <text x="754" y="364" fill="#64748b" font-size="8">TCP</text>
 
         <!-- Auth → DB (dashed L-shaped, auth flow) -->
-        <path d="M 650 420 L 650 380 L 840 380 L 840 302" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead-rose)"/>
-        <text x="664" y="392" fill="#fb7185" font-size="8">JWT verify</text>
+        <path d="M 650,420 L 650,380 L 840,380 L 840,302" fill="none" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead-rose)"/>
+        <text x="664" y="392" fill="#e11d48" font-size="8">JWT verify</text>
 
         <!-- =================================================================
              COMPONENT BOXES (with opaque mask, drawn AFTER arrows)
              ================================================================= -->
 
         <!-- External: Users -->
-        <rect x="40" y="280" width="120" height="60" rx="6" fill="#0f172a"/>
-        <rect x="40" y="280" width="120" height="60" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
-        <text x="100" y="305" fill="white" font-size="11" font-weight="600" text-anchor="middle">Users</text>
-        <text x="100" y="321" fill="#94a3b8" font-size="9" text-anchor="middle">Browser / Mobile</text>
+        <rect x="40" y="280" width="120" height="60" rx="6" fill="#ffffff"/>
+        <rect x="40" y="280" width="120" height="60" rx="6" fill="rgba(248, 250, 252, 0.9)" stroke="#64748b" stroke-width="1.5"/>
+        <text x="100" y="305" fill="#334155" font-size="11" font-weight="600" text-anchor="middle">Users</text>
+        <text x="100" y="321" fill="#64748b" font-size="9" text-anchor="middle">Browser / Mobile</text>
 
         <!-- AWS: CloudFront -->
-        <rect x="220" y="280" width="120" height="60" rx="6" fill="#0f172a"/>
-        <rect x="220" y="280" width="120" height="60" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
-        <text x="280" y="305" fill="white" font-size="11" font-weight="600" text-anchor="middle">CloudFront</text>
-        <text x="280" y="321" fill="#94a3b8" font-size="9" text-anchor="middle">CDN</text>
+        <rect x="220" y="280" width="120" height="60" rx="6" fill="#ffffff"/>
+        <rect x="220" y="280" width="120" height="60" rx="6" fill="rgba(255, 251, 235, 0.9)" stroke="#d97706" stroke-width="1.5"/>
+        <text x="280" y="305" fill="#92400e" font-size="11" font-weight="600" text-anchor="middle">CloudFront</text>
+        <text x="280" y="321" fill="#64748b" font-size="9" text-anchor="middle">CDN</text>
 
         <!-- API Gateway: ALB -->
-        <rect x="400" y="280" width="120" height="60" rx="6" fill="#0f172a"/>
-        <rect x="400" y="280" width="120" height="60" rx="6" fill="rgba(21, 94, 117, 0.35)" stroke="#06b6d4" stroke-width="1.5"/>
-        <text x="460" y="305" fill="white" font-size="11" font-weight="600" text-anchor="middle">ALB</text>
-        <text x="460" y="321" fill="#94a3b8" font-size="9" text-anchor="middle">Application LB :443</text>
+        <rect x="400" y="280" width="120" height="60" rx="6" fill="#ffffff"/>
+        <rect x="400" y="280" width="120" height="60" rx="6" fill="rgba(236, 254, 255, 0.9)" stroke="#0891b2" stroke-width="1.5"/>
+        <text x="460" y="305" fill="#155e75" font-size="11" font-weight="600" text-anchor="middle">ALB</text>
+        <text x="460" y="321" fill="#64748b" font-size="9" text-anchor="middle">Application LB :443</text>
 
         <!-- Backend: API Server -->
-        <rect x="580" y="280" width="140" height="60" rx="6" fill="#0f172a"/>
-        <rect x="580" y="280" width="140" height="60" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
-        <text x="650" y="305" fill="white" font-size="11" font-weight="600" text-anchor="middle">API Server</text>
-        <text x="650" y="321" fill="#94a3b8" font-size="9" text-anchor="middle">FastAPI :8000</text>
+        <rect x="580" y="280" width="140" height="60" rx="6" fill="#ffffff"/>
+        <rect x="580" y="280" width="140" height="60" rx="6" fill="rgba(236, 253, 245, 0.9)" stroke="#059669" stroke-width="1.5"/>
+        <text x="650" y="305" fill="#065f46" font-size="11" font-weight="600" text-anchor="middle">API Server</text>
+        <text x="650" y="321" fill="#64748b" font-size="9" text-anchor="middle">FastAPI :8000</text>
 
         <!-- Database: PostgreSQL -->
-        <rect x="780" y="240" width="120" height="60" rx="6" fill="#0f172a"/>
-        <rect x="780" y="240" width="120" height="60" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
-        <text x="840" y="265" fill="white" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL</text>
-        <text x="840" y="281" fill="#94a3b8" font-size="9" text-anchor="middle">RDS :5432</text>
+        <rect x="780" y="240" width="120" height="60" rx="6" fill="#ffffff"/>
+        <rect x="780" y="240" width="120" height="60" rx="6" fill="rgba(245, 243, 255, 0.9)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="840" y="265" fill="#5b21b6" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL</text>
+        <text x="840" y="281" fill="#64748b" font-size="9" text-anchor="middle">RDS :5432</text>
 
         <!-- Cache: Redis -->
-        <rect x="780" y="340" width="120" height="60" rx="6" fill="#0f172a"/>
-        <rect x="780" y="340" width="120" height="60" rx="6" fill="rgba(88, 28, 135, 0.35)" stroke="#c084fc" stroke-width="1.5"/>
-        <text x="840" y="365" fill="white" font-size="11" font-weight="600" text-anchor="middle">Redis</text>
-        <text x="840" y="381" fill="#94a3b8" font-size="9" text-anchor="middle">ElastiCache :6379</text>
+        <rect x="780" y="340" width="120" height="60" rx="6" fill="#ffffff"/>
+        <rect x="780" y="340" width="120" height="60" rx="6" fill="rgba(250, 245, 255, 0.9)" stroke="#9333ea" stroke-width="1.5"/>
+        <text x="840" y="365" fill="#6b21a8" font-size="11" font-weight="600" text-anchor="middle">Redis</text>
+        <text x="840" y="381" fill="#64748b" font-size="9" text-anchor="middle">ElastiCache :6379</text>
 
         <!-- Security: Auth Provider -->
-        <rect x="580" y="420" width="140" height="60" rx="6" fill="#0f172a"/>
-        <rect x="580" y="420" width="140" height="60" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
-        <text x="650" y="445" fill="white" font-size="11" font-weight="600" text-anchor="middle">Auth Provider</text>
-        <text x="650" y="461" fill="#94a3b8" font-size="9" text-anchor="middle">Cognito / OAuth2</text>
+        <rect x="580" y="420" width="140" height="60" rx="6" fill="#ffffff"/>
+        <rect x="580" y="420" width="140" height="60" rx="6" fill="rgba(255, 241, 242, 0.9)" stroke="#e11d48" stroke-width="1.5"/>
+        <text x="650" y="445" fill="#9f1239" font-size="11" font-weight="600" text-anchor="middle">Auth Provider</text>
+        <text x="650" y="461" fill="#64748b" font-size="9" text-anchor="middle">Cognito / OAuth2</text>
 
         <!-- =================================================================
-             LEGEND (outside region boundary, region ends at y=580)
+             LEGEND (centered horizontally within viewBox)
+             viewBox_width = 960
+             Legend content: 8 items, ~460px wide
+             legend_x = (960 - 460) / 2 = 250
              ================================================================= -->
-        <text x="740" y="70" fill="white" font-size="10" font-weight="600">Legend</text>
+        <rect x="240" y="510" width="480" height="80" rx="8" fill="rgba(248, 250, 252, 0.8)" stroke="#cbd5e1" stroke-width="1"/>
 
-        <rect x="740" y="82" width="16" height="10" rx="2" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1"/>
-        <text x="762" y="90" fill="#94a3b8" font-size="8">External</text>
+        <text x="480" y="528" fill="#334155" font-size="10" font-weight="600" text-anchor="middle">Legend</text>
 
-        <rect x="740" y="98" width="16" height="10" rx="2" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
-        <text x="762" y="106" fill="#94a3b8" font-size="8">Cloud Service</text>
+        <!-- Row 1 -->
+        <rect x="260" y="538" width="16" height="10" rx="2" fill="rgba(248, 250, 252, 0.9)" stroke="#64748b" stroke-width="1"/>
+        <text x="282" y="547" fill="#64748b" font-size="8">External</text>
 
-        <rect x="740" y="114" width="16" height="10" rx="2" fill="rgba(21, 94, 117, 0.35)" stroke="#06b6d4" stroke-width="1"/>
-        <text x="762" y="122" fill="#94a3b8" font-size="8">API Gateway</text>
+        <rect x="340" y="538" width="16" height="10" rx="2" fill="rgba(255, 251, 235, 0.9)" stroke="#d97706" stroke-width="1"/>
+        <text x="362" y="547" fill="#64748b" font-size="8">Cloud Service</text>
 
-        <rect x="740" y="130" width="16" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
-        <text x="762" y="138" fill="#94a3b8" font-size="8">Backend</text>
+        <rect x="440" y="538" width="16" height="10" rx="2" fill="rgba(236, 254, 255, 0.9)" stroke="#0891b2" stroke-width="1"/>
+        <text x="462" y="547" fill="#64748b" font-size="8">API Gateway</text>
 
-        <rect x="740" y="146" width="16" height="10" rx="2" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
-        <text x="762" y="154" fill="#94a3b8" font-size="8">Database</text>
+        <rect x="540" y="538" width="16" height="10" rx="2" fill="rgba(236, 253, 245, 0.9)" stroke="#059669" stroke-width="1"/>
+        <text x="562" y="547" fill="#64748b" font-size="8">Backend</text>
 
-        <rect x="740" y="162" width="16" height="10" rx="2" fill="rgba(88, 28, 135, 0.35)" stroke="#c084fc" stroke-width="1"/>
-        <text x="762" y="170" fill="#94a3b8" font-size="8">Cache</text>
+        <!-- Row 2 -->
+        <rect x="260" y="558" width="16" height="10" rx="2" fill="rgba(245, 243, 255, 0.9)" stroke="#7c3aed" stroke-width="1"/>
+        <text x="282" y="567" fill="#64748b" font-size="8">Database</text>
 
-        <rect x="740" y="178" width="16" height="10" rx="2" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1"/>
-        <text x="762" y="186" fill="#94a3b8" font-size="8">Security</text>
+        <rect x="340" y="558" width="16" height="10" rx="2" fill="rgba(250, 245, 255, 0.9)" stroke="#9333ea" stroke-width="1"/>
+        <text x="362" y="567" fill="#64748b" font-size="8">Cache</text>
 
-        <line x1="740" y1="204" x2="756" y2="204" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
-        <text x="762" y="207" fill="#94a3b8" font-size="8">Auth Flow</text>
+        <rect x="440" y="558" width="16" height="10" rx="2" fill="rgba(255, 241, 242, 0.9)" stroke="#e11d48" stroke-width="1"/>
+        <text x="462" y="567" fill="#64748b" font-size="8">Security</text>
+
+        <line x1="540" y1="563" x2="556" y2="563" stroke="#e11d48" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="562" y="567" fill="#64748b" font-size="8">Auth Flow</text>
       </svg>
     </div>
 

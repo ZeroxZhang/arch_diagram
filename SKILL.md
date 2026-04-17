@@ -1,10 +1,10 @@
 ---
 name: architecture-diagram
-description: Create professional, dark-themed architecture diagrams as standalone HTML files with SVG graphics. Use when the user asks for system architecture diagrams, infrastructure diagrams, cloud architecture visualizations, security diagrams, network topology diagrams, or any technical diagram showing system components and their relationships.
+description: Create professional, light-themed architecture diagrams as standalone HTML files with SVG graphics. Use when the user asks for system architecture diagrams, infrastructure diagrams, cloud architecture visualizations, security diagrams, network topology diagrams, or any technical diagram showing system components and their relationships.
 license: MIT
 metadata:
-  version: "2.0"
-  author: Cocoon AI (hello@cocoon-ai.com)
+  version: "3.0"
+  author: ZeroxZhang
 ---
 
 # Architecture Diagram Skill
@@ -40,6 +40,7 @@ Rules for the ASCII plan:
 - List ALL connections (edges) for each component
 - Verify no two components share the same bounding box
 - Ensure arrow sources and targets have clear, non-overlapping paths
+- Identify components with multiple outgoing connections (bus-style routing needed)
 
 ### Step 2: Coordinate Calculation
 
@@ -89,39 +90,118 @@ Vertical arrow label:    label_x = arrow_x + 14    // 14px to the right
                          label_y = (arrow_start_y + arrow_end_y) / 2 + 4
 ```
 
+#### Bus-style multi-connection routing (CRITICAL)
+
+When a component has **multiple outgoing connections** from the same edge (e.g., API Server → DB and API Server → Redis), all connections MUST share a single exit point on the source component, then branch out. This prevents arrows from fanning out directly from the component edge.
+
+**Rule:** All arrows from the same source edge share ONE common start point, then diverge via orthogonal paths.
+
+```
+Example: API Server (x=580, y=280, W=140, H=60) connects to:
+  - DB (x=780, y=240, W=120, H=60)
+  - Redis (x=780, y=340, W=120, H=60)
+
+Common exit point: right edge center of API Server = (720, 310)
+Branch point: x = 740 (20px to the right of the exit point)
+
+Arrow to DB:   M 720,310 L 740,310 L 740,270 L 778,270
+Arrow to Redis: M 720,310 L 740,310 L 740,370 L 778,370
+```
+
+The shared segment from the exit point to the branch point creates a clean "bus" trunk. Each branch then routes orthogonally to its target.
+
+**For vertical bus-style (top/bottom edge):**
+```
+Common exit point: bottom edge center = (center_x, y + H)
+Branch point: y = exit_y + 20 (20px below the exit point)
+
+Arrow to Target1: M center_x,exit_y L center_x,branch_y L target1_center_x,branch_y L target1_center_x,target1_top
+Arrow to Target2: M center_x,exit_y L center_x,branch_y L target2_center_x,branch_y L target2_center_x,target2_top
+```
+
 ### Step 3: Generate SVG
 
 Follow the design system below to generate the final HTML/SVG.
+
+### Step 4: Review & Fix (REQUIRED)
+
+**After generating the SVG, you MUST perform a systematic review before output.** Different AI models may produce incorrect connections, overlapping elements, or routing errors. This step catches and fixes those issues.
+
+#### Review Checklist
+
+Go through EACH item below. If ANY check fails, fix the SVG before outputting.
+
+**A. Component Overlap Check**
+- For every pair of components (A, B), verify their bounding boxes do NOT intersect:
+  ```
+  overlap = !(A.x + A.W <= B.x || B.x + B.W <= A.x || A.y + A.H <= B.y || B.y + B.H <= A.y)
+  ```
+  If `overlap` is true for any pair, adjust positions.
+
+**B. Arrow Routing Check**
+- For each arrow, trace its full path (including L-shaped or U-shaped segments) and verify:
+  - The path does NOT pass through any component that is neither its source nor its target
+  - The start point is on the source component's boundary (not inside it)
+  - The end point is 2px before the target component's boundary (not inside it)
+  - The arrow does not overlap with another arrow's path for more than 10px (unless they share a bus trunk)
+
+**C. Bus-style Connection Check**
+- For every component with 2+ outgoing connections from the same edge:
+  - Verify all connections share a SINGLE exit point on the source component
+  - Verify there is a common trunk segment before branching
+  - Verify each branch routes cleanly to its target without crossing other branches
+
+**D. Connection Correctness Check**
+- Verify each arrow matches the intended connection from the layout plan
+- Verify no arrow is missing (every edge in the plan has a corresponding SVG element)
+- Verify no extra arrows exist that aren't in the plan
+- Verify arrow directions are correct (source → target, not reversed)
+
+**E. Legend Check**
+- Verify the legend is centered horizontally within the SVG viewBox
+- Verify the legend does not overlap any component or boundary
+- Verify all component types used in the diagram appear in the legend
+
+**F. Label Readability Check**
+- Verify no two arrow labels overlap each other
+- Verify no arrow label overlaps a component box
+- Verify all text is legible (sufficient contrast against background)
+
+If ANY check fails, modify the SVG to fix the issue, then re-run the failed check. Repeat until all checks pass.
 
 ---
 
 ## Design System
 
-### Color Palette
+### Color Palette (Light Theme)
 
 Use these semantic colors for component types:
 
-| Component Type | Fill (rgba) | Stroke |
-|---------------|-------------|--------|
-| Frontend | `rgba(8, 51, 68, 0.4)` | `#22d3ee` (cyan-400) |
-| Backend | `rgba(6, 78, 59, 0.4)` | `#34d399` (emerald-400) |
-| Database | `rgba(76, 29, 149, 0.4)` | `#a78bfa` (violet-400) |
-| Cache/Redis | `rgba(88, 28, 135, 0.35)` | `#c084fc` (purple-400) |
-| AWS/Cloud | `rgba(120, 53, 15, 0.3)` | `#fbbf24` (amber-400) |
-| Security | `rgba(136, 19, 55, 0.4)` | `#fb7185` (rose-400) |
-| Message Bus | `rgba(251, 146, 60, 0.3)` | `#fb923c` (orange-400) |
-| API Gateway | `rgba(21, 94, 117, 0.35)` | `#06b6d4` (cyan-500) |
-| Container/K8s | `rgba(30, 64, 175, 0.3)` | `#60a5fa` (blue-400) |
-| External/Generic | `rgba(30, 41, 59, 0.5)` | `#94a3b8` (slate-400) |
+| Component Type | Fill (rgba) | Stroke | Text |
+|---------------|-------------|--------|------|
+| Frontend | `rgba(236, 254, 255, 0.9)` | `#0891b2` (cyan-600) | `#155e75` |
+| Backend | `rgba(236, 253, 245, 0.9)` | `#059669` (emerald-600) | `#065f46` |
+| Database | `rgba(245, 243, 255, 0.9)` | `#7c3aed` (violet-600) | `#5b21b6` |
+| Cache/Redis | `rgba(250, 245, 255, 0.9)` | `#9333ea` (purple-600) | `#6b21a8` |
+| AWS/Cloud | `rgba(255, 251, 235, 0.9)` | `#d97706` (amber-600) | `#92400e` |
+| Security | `rgba(255, 241, 242, 0.9)` | `#e11d48` (rose-600) | `#9f1239` |
+| Message Bus | `rgba(255, 247, 237, 0.9)` | `#ea580c` (orange-600) | `#9a3412` |
+| API Gateway | `rgba(236, 254, 255, 0.9)` | `#0891b2` (cyan-600) | `#155e75` |
+| Container/K8s | `rgba(239, 246, 255, 0.9)` | `#2563eb` (blue-600) | `#1e40af` |
+| External/Generic | `rgba(248, 250, 252, 0.9)` | `#64748b` (slate-500) | `#334155` |
 
 ### Typography
 
-Use JetBrains Mono for all text (monospace, technical aesthetic):
-```html
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+Use the following font stack for all text:
+```css
+font-family: 'SimHei', 'Microsoft YaHei', 'PingFang SC', 'JetBrains Mono', monospace;
 ```
 
+For Chinese text, use SimHei (黑体) as the primary font. JetBrains Mono is used as the fallback monospace font for technical labels.
+
 Font sizes: 12px for component names, 9px for sublabels, 8px for annotations, 7px for tiny labels.
+
+**Title:** The diagram title MUST be centered horizontally, use a larger font size (20px), and use SimHei for Chinese characters. Do NOT include a pulsing dot indicator next to the title.
 
 ### Grid Alignment
 
@@ -138,35 +218,33 @@ This ensures:
 
 ### Visual Elements
 
-**Background:** `#020617` (slate-950) with subtle grid pattern:
+**Background:** `#ffffff` (white) with subtle grid pattern:
 ```svg
 <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
 </pattern>
 ```
 
-**Component boxes:** Rounded rectangles (`rx="6"`) with 1.5px stroke, semi-transparent fills.
+**Component boxes:** Rounded rectangles (`rx="6"`) with 1.5px stroke, semi-transparent light fills.
 
 **Security groups:** Dashed stroke (`stroke-dasharray="4,4"`), transparent fill, rose color.
 
 **Region boundaries:** Larger dashed stroke (`stroke-dasharray="8,4"`), amber color, `rx="12"`.
 
-### Masking arrows behind transparent fills
+### Masking arrows behind fills
 
-Since component boxes use semi-transparent fills (`rgba(..., 0.4)`), arrows behind them will show through. To fully mask arrows, draw an opaque background rect (e.g., `fill="#0f172a"`) at the same position before drawing the semi-transparent styled rect on top:
+Since component boxes use semi-transparent fills, arrows behind them may show through. To fully mask arrows, draw an opaque background rect (e.g., `fill="#ffffff"`) at the same position before drawing the semi-transparent styled rect on top:
 ```svg
-<!-- Opaque background to mask arrows -->
-<rect x="X" y="Y" width="W" height="H" rx="6" fill="#0f172a"/>
-<!-- Styled component on top -->
-<rect x="X" y="Y" width="W" height="H" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+<rect x="X" y="Y" width="W" height="H" rx="6" fill="#ffffff"/>
+<rect x="X" y="Y" width="W" height="H" rx="6" fill="rgba(236, 253, 245, 0.9)" stroke="#059669" stroke-width="1.5"/>
 ```
 
-**Auth/security flows:** Dashed lines in rose color (`#fb7185`).
+**Auth/security flows:** Dashed lines in rose color (`#e11d48`).
 
-**Message buses / Event buses:** Small connector elements between services. Use orange color (`#fb923c` stroke, `rgba(251, 146, 60, 0.3)` fill):
+**Message buses / Event buses:** Small connector elements between services. Use orange color (`#ea580c` stroke, `rgba(255, 247, 237, 0.9)` fill):
 ```svg
-<rect x="X" y="Y" width="120" height="20" rx="4" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
-<text x="CENTER_X" y="Y+14" fill="#fb923c" font-size="7" text-anchor="middle">Kafka / RabbitMQ</text>
+<rect x="X" y="Y" width="120" height="20" rx="4" fill="rgba(255, 247, 237, 0.9)" stroke="#ea580c" stroke-width="1"/>
+<text x="CENTER_X" y="Y+14" fill="#9a3412" font-size="7" text-anchor="middle">Kafka / RabbitMQ</text>
 ```
 
 ### Spacing Rules
@@ -190,25 +268,31 @@ Component B: y=170, height=60  → ends at y=230
 
 ### Legend Placement
 
-**CRITICAL:** Place legends OUTSIDE all boundary boxes (region boundaries, cluster boundaries, security groups).
+**CRITICAL:** The legend MUST be centered horizontally within the SVG viewBox.
 
-- Calculate where all boundaries end (y position + height)
-- Place legend at least 20px below the lowest boundary
+- Calculate the total width of the legend content (all items in a row or grid)
+- Set the legend's starting x so that it is centered: `legend_x = (viewBox_width - legend_total_width) / 2`
+- Place legend at least 20px below the lowest boundary or component
 - Expand SVG viewBox height if needed to accommodate
+- Wrap the legend in a subtle container box for visual grouping:
+
+```svg
+<rect x="LEGEND_X - 10" y="LEGEND_Y - 10" width="LEGEND_W + 20" height="LEGEND_H + 20" rx="8" fill="rgba(248, 250, 252, 0.8)" stroke="#cbd5e1" stroke-width="1"/>
+```
 
 **Example:**
 ```
-Kubernetes Cluster: y=30, height=460 → ends at y=490
-Legend should start at: y=510 or below
-SVG viewBox height: at least 560 to fit legend
+viewBox_width = 960
+Legend content width = 400
+legend_x = (960 - 400) / 2 = 280
 ```
 
-**Wrong:** Legend at y=470 inside a cluster boundary that ends at y=490
-**Right:** Legend at y=510, below the cluster boundary, with viewBox height extended
+**Wrong:** Legend positioned at x=740, aligned to the right edge
+**Right:** Legend centered at x=280, symmetrically placed within the viewBox
 
 ### Layout Structure
 
-1. **Header** - Title with pulsing dot indicator, subtitle
+1. **Header** - Centered title (no pulsing dot), subtitle
 2. **Main SVG diagram** - Contained in rounded border card
 3. **Summary cards** - Grid of 3 cards below diagram with key details
 4. **Footer** - Minimal metadata line
@@ -216,9 +300,10 @@ SVG viewBox height: at least 560 to fit legend
 ### Component Box Pattern
 
 ```svg
+<rect x="X" y="Y" width="W" height="H" rx="6" fill="#ffffff"/>
 <rect x="X" y="Y" width="W" height="H" rx="6" fill="FILL_COLOR" stroke="STROKE_COLOR" stroke-width="1.5"/>
-<text x="CENTER_X" y="Y+20" fill="white" font-size="11" font-weight="600" text-anchor="middle">LABEL</text>
-<text x="CENTER_X" y="Y+36" fill="#94a3b8" font-size="9" text-anchor="middle">sublabel</text>
+<text x="CENTER_X" y="Y+20" fill="TEXT_COLOR" font-size="11" font-weight="600" text-anchor="middle">LABEL</text>
+<text x="CENTER_X" y="Y+36" fill="#64748b" font-size="9" text-anchor="middle">sublabel</text>
 ```
 
 ### Info Card Pattern
@@ -267,7 +352,7 @@ Draw connection arrows **early in the SVG** (right after the background grid) so
 ```svg
 <line x1="START_X" y1="Y" x2="END_X" y2="Y"
       stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-<text x="LABEL_X" y="LABEL_Y" fill="#94a3b8" font-size="9" text-anchor="middle">HTTPS</text>
+<text x="LABEL_X" y="LABEL_Y" fill="#64748b" font-size="9" text-anchor="middle">HTTPS</text>
 ```
 Use the coordinate formulas from Step 2 above.
 
@@ -275,7 +360,7 @@ Use the coordinate formulas from Step 2 above.
 ```svg
 <!-- Main direction -->
 <line x1="START_X" y1="Y-6" x2="END_X" y2="Y-6"
-      stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+      stroke="#059669" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 <!-- Return direction -->
 <line x1="END_X" y1="Y+6" x2="START_X" y2="Y+6"
       stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
@@ -285,24 +370,24 @@ Two parallel lines, offset by 6px vertically. Top line has primary color, bottom
 #### 3. Dashed Arrow (auth/security flow)
 ```svg
 <line x1="START_X" y1="Y" x2="END_X" y2="Y"
-      stroke="#fb7185" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
-<text x="LABEL_X" y="LABEL_Y" fill="#fb7185" font-size="8" text-anchor="middle">JWT</text>
+      stroke="#e11d48" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+<text x="LABEL_X" y="LABEL_Y" fill="#e11d48" font-size="8" text-anchor="middle">JWT</text>
 ```
 
 #### 4. Async/Event Arrow (message queue, pub/sub)
 ```svg
 <line x1="START_X" y1="Y" x2="END_X" y2="Y"
-      stroke="#fb923c" stroke-width="1.5" stroke-dasharray="2,4" marker-end="url(#arrowhead)"/>
-<text x="LABEL_X" y="LABEL_Y" fill="#fb923c" font-size="8" text-anchor="middle">async</text>
+      stroke="#ea580c" stroke-width="1.5" stroke-dasharray="2,4" marker-end="url(#arrowhead)"/>
+<text x="LABEL_X" y="LABEL_Y" fill="#ea580c" font-size="8" text-anchor="middle">async</text>
 ```
 Uses `dasharray="2,4"` (short dashes) to distinguish from auth flows.
 
 #### 5. Numbered Step Arrow (sequential flow)
 ```svg
 <line x1="START_X" y1="Y" x2="END_X" y2="Y"
-      stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-<circle cx="LABEL_X" cy="LABEL_Y-2" r="8" fill="#020617" stroke="#22d3ee" stroke-width="1"/>
-<text x="LABEL_X" y="LABEL_Y+1" fill="#22d3ee" font-size="8" text-anchor="middle" font-weight="600">1</text>
+      stroke="#0891b2" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+<circle cx="LABEL_X" cy="LABEL_Y-2" r="8" fill="#ffffff" stroke="#0891b2" stroke-width="1"/>
+<text x="LABEL_X" y="LABEL_Y+1" fill="#0891b2" font-size="8" text-anchor="middle" font-weight="600">1</text>
 ```
 Number inside a small circle. Use for step-by-step flows (1, 2, 3...).
 
@@ -346,13 +431,36 @@ Where:
 - `EXTEND_Y = max(START_Y, TARGET_Y) + 40` (go 40px below both components)
 - `SIDE_X` is the horizontal bypass position (either left of both or right of both)
 
+#### 8. Bus-style Multi-connection Arrow (CRITICAL)
+Use when a component connects to **multiple targets** from the same edge. All connections share a single exit point, then branch via orthogonal paths.
+
+```svg
+<!-- Source: API Server right edge center = (720, 310) -->
+<!-- Branch point: x=740 (20px right of exit) -->
+
+<!-- Shared trunk + branch to DB -->
+<path d="M 720,310 L 740,310 L 740,270 L 778,270"
+      fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+<!-- Shared trunk + branch to Redis -->
+<path d="M 720,310 L 740,310 L 740,370 L 778,370"
+      fill="none" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+```
+
+**Key rules:**
+- The exit point is always at the center of the source component's edge
+- The branch point is 20px away from the exit point (outside the component)
+- Each branch routes orthogonally from the branch point to its target
+- The shared trunk segment (exit → branch point) creates a clean visual "bus"
+- Do NOT draw separate arrows fanning out from different points on the source edge
+
 ### Arrow Label Positioning for Orthogonal Arrows
 
 For L-shaped or U-shaped paths, place the label at the **corner point** or at the **midpoint of the longest segment**:
 
 ```svg
 <path d="..." id="route1"/>
-<text x="CORNER_X + 10" y="CORNER_Y - 6" fill="#94a3b8" font-size="8">label</text>
+<text x="CORNER_X + 10" y="CORNER_Y - 6" fill="#64748b" font-size="8">label</text>
 ```
 
 Offset 10px right and 6px above the corner to avoid overlapping the line.
@@ -387,9 +495,10 @@ Copy and customize the template at `assets/template.html`. Key customization poi
 2. Calculate viewBox dimensions using the rules above
 3. Write the ASCII layout plan as an HTML comment in the SVG
 4. Add component boxes using grid-aligned coordinates
-5. Draw connection arrows using the coordinate formulas
-6. Update the three summary cards
-7. Update footer metadata
+5. Draw connection arrows using the coordinate formulas (bus-style for multi-connections)
+6. Center the legend horizontally within the viewBox
+7. Update the three summary cards
+8. Update footer metadata
 
 ---
 
@@ -401,9 +510,13 @@ Copy and customize the template at `assets/template.html`. Key customization poi
 - [ ] **Arrows connect to correct edges**: Each arrow starts at the source component's boundary (not its center) and ends 2px before the target component's boundary
 - [ ] **No arrow passes through a component**: Visually trace each arrow path — it should not cross through any component box that is neither its source nor its target
 - [ ] **All coordinates on 20px grid**: Every component x and y is divisible by 20; every width and height is divisible by 10
+- [ ] **Legend centered**: The legend module is horizontally centered within the SVG viewBox
 - [ ] **Legend outside all boundaries**: The legend's top-left y position is greater than the y+height of every region boundary, security group, and cluster box
 - [ ] **Arrows rendered behind components**: All `<line>` and `<path>` elements for arrows appear in the SVG before all `<rect>` elements for component boxes
 - [ ] **Label positions readable**: Arrow labels don't overlap any component box or other label
+- [ ] **Bus-style connections**: Components with multiple outgoing connections from the same edge share a single exit point and common trunk before branching
+- [ ] **Title centered**: The diagram title is centered horizontally without a pulsing dot
+- [ ] **Light theme colors**: All colors follow the light theme palette (white background, light fills, dark strokes and text)
 
 If ANY item fails, fix it before outputting.
 
