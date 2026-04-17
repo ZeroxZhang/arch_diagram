@@ -22,16 +22,18 @@ A professional architecture diagram generation skill that creates beautiful, lig
 - **Bus-style Connections** — Multiple connections from one component share a single exit point
 - **Review Mechanism** — Built-in checklist to prevent overlapping, misrouting, and other errors
 
-### Color Palette
+### Color Palette (Light Theme)
 
-| Component Type | Color | Use For |
-|---|---|---|
-| Frontend | Cyan | Client apps, UI, edge devices |
-| Backend | Emerald | Servers, APIs, services |
-| Database | Violet | Databases, storage, AI/ML |
-| Cloud/AWS | Amber | Cloud services, infrastructure |
-| Security | Rose | Auth, security groups, encryption |
-| External | Slate | Generic, external systems |
+| Component Type | Fill | Stroke | Use For |
+|---|---|---|---|
+| Frontend | Light cyan | Cyan-600 | Client apps, UI, edge devices |
+| Backend | Light emerald | Emerald-600 | Servers, APIs, services |
+| Database | Light violet | Violet-600 | Databases, storage, AI/ML |
+| Cloud/AWS | Light amber | Amber-600 | Cloud services, infrastructure |
+| Security | Light rose | Rose-600 | Auth, security groups, encryption |
+| Cache/Redis | Light purple | Purple-600 | Caching, session storage |
+| Message Bus | Light orange | Orange-600 | Message queues, event streaming |
+| External | Light slate | Slate-500 | Generic, external systems |
 
 ### Project Structure
 
@@ -87,16 +89,18 @@ MIT
 - **总线式连线** — 同一组件的多条连线共享单一出口点，避免分散
 - **审查机制** — 内置检查清单，防止重叠、错连等问题
 
-### 配色方案
+### 配色方案（浅色主题）
 
-| 组件类型 | 颜色 | 用途 |
-|---|---|---|
-| 前端 | 青色 (Cyan) | 客户端应用、UI、边缘设备 |
-| 后端 | 翠绿 (Emerald) | 服务器、API、服务 |
-| 数据库 | 紫罗兰 (Violet) | 数据库、存储、AI/ML |
-| 云服务 | 琥珀 (Amber) | 云服务、基础设施 |
-| 安全 | 玫瑰 (Rose) | 认证、安全组、加密 |
-| 外部 | 石板灰 (Slate) | 通用、外部系统 |
+| 组件类型 | 填充色 | 描边色 | 用途 |
+|---|---|---|---|
+| 前端 | 浅青色 | 青色-600 | 客户端应用、UI、边缘设备 |
+| 后端 | 浅翠绿 | 翠绿-600 | 服务器、API、服务 |
+| 数据库 | 浅紫罗兰 | 紫罗兰-600 | 数据库、存储、AI/ML |
+| 云服务 | 浅琥珀 | 琥珀-600 | 云服务、基础设施 |
+| 安全 | 浅玫瑰 | 玫瑰-600 | 认证、安全组、加密 |
+| 缓存 | 浅紫色 | 紫色-600 | 缓存、会话存储 |
+| 消息总线 | 浅橙色 | 橙色-600 | 消息队列、事件流 |
+| 外部 | 浅石板灰 | 石板灰-500 | 通用、外部系统 |
 
 ### 项目结构
 
