@@ -8,16 +8,19 @@
 
 ## Architecture Diagram Generator
 
-A professional architecture diagram generation skill that creates beautiful, dark-themed system architecture diagrams as standalone HTML files with SVG graphics. Based on [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator).
+A professional architecture diagram generation skill that creates beautiful, light-themed system architecture diagrams as standalone HTML files with SVG graphics. Based on [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator).
 
 ### Features
 
-- **Dark Theme** — Slate-950 background with subtle grid pattern
+- **Light Theme** — White background with subtle grid pattern
 - **Semantic Color Coding** — Consistent colors for frontend, backend, database, cloud, and security components
+- **Chinese as Default Language** — All labels, titles, and legends use Chinese by default
 - **Self-contained Output** — Single HTML file with embedded CSS and inline SVG
 - **No Dependencies** — Opens in any modern browser, no JavaScript required
-- **Professional Typography** — JetBrains Mono for technical aesthetic
+- **Professional Typography** — SimHei for Chinese, JetBrains Mono for technical labels
 - **Smart Layering** — Arrows render cleanly behind component boxes
+- **Bus-style Connections** — Multiple connections from one component share a single exit point
+- **Review Mechanism** — Built-in checklist to prevent overlapping, misrouting, and other errors
 
 ### Color Palette
 
@@ -42,8 +45,9 @@ architecture-diagram/
 ### How It Works
 
 1. **Layout Planning** — Create an ASCII layout plan with component positions and connections
-2. **Coordinate Calculation** — Use precise formulas for arrow coordinates
+2. **Coordinate Calculation** — Use precise formulas for arrow coordinates (bus-style for multi-connections)
 3. **SVG Generation** — Generate the final HTML/SVG following the design system
+4. **Review & Fix** — Systematic checklist to verify no overlaps, correct routing, and proper connections
 
 ### Output
 
@@ -69,16 +73,19 @@ MIT
 
 ## 架构图生成器
 
-一个专业的架构图生成技能，可以创建精美的深色主题系统架构图，输出为包含 SVG 图形的独立 HTML 文件。基于 [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator) 开发。
+一个专业的架构图生成技能，可以创建精美的浅色主题系统架构图，输出为包含 SVG 图形的独立 HTML 文件。基于 [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator) 优化开发。
 
 ### 特性
 
-- **深色主题** — Slate-950 背景配合细微网格图案
+- **浅色主题** — 白色背景配合细微网格图案
 - **语义化配色** — 前端、后端、数据库、云服务和安全组件使用一致的配色方案
+- **默认中文输出** — 所有标签、标题、图例默认使用中文
 - **自包含输出** — 单个 HTML 文件，内嵌 CSS 和 SVG
 - **零依赖** — 在任何现代浏览器中打开即可，无需 JavaScript
-- **专业排版** — 使用 JetBrains Mono 等宽字体，呈现技术美感
+- **专业排版** — 中文使用黑体（SimHei），技术标签使用 JetBrains Mono 等宽字体
 - **智能分层** — 箭头在组件框下方渲染，层次清晰
+- **总线式连线** — 同一组件的多条连线共享单一出口点，避免分散
+- **审查机制** — 内置检查清单，防止重叠、错连等问题
 
 ### 配色方案
 
@@ -103,8 +110,9 @@ architecture-diagram/
 ### 工作原理
 
 1. **布局规划** — 创建 ASCII 布局计划，确定组件位置和连接关系
-2. **坐标计算** — 使用精确公式计算箭头坐标
+2. **坐标计算** — 使用精确公式计算箭头坐标（多连线使用总线式路由）
 3. **SVG 生成** — 按照设计系统生成最终的 HTML/SVG
+4. **审查修复** — 系统化检查清单，验证无重叠、路由正确、连接无误
 
 ### 输出
 
