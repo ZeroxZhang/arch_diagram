@@ -123,8 +123,8 @@
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <h1>[PROJECT NAME] Architecture</h1>
-      <p class="subtitle">[Subtitle description]</p>
+      <h1>[项目名称] 系统架构图</h1>
+      <p class="subtitle">[副标题描述]</p>
     </div>
 
     <!-- Main Diagram -->
@@ -167,7 +167,7 @@
              REGION BOUNDARY (draw arrows AFTER this, BEFORE component boxes)
              ================================================================= -->
         <rect x="200" y="40" width="740" height="460" rx="12" fill="rgba(255, 251, 235, 0.3)" stroke="#d97706" stroke-width="1" stroke-dasharray="8,4"/>
-        <text x="212" y="58" fill="#92400e" font-size="10" font-weight="600">AWS Region: us-west-2</text>
+        <text x="212" y="58" fill="#92400e" font-size="10" font-weight="600">AWS 区域: us-west-2</text>
 
         <!-- =================================================================
              ARROWS (drawn BEFORE component boxes so they render behind)
@@ -175,7 +175,7 @@
 
         <!-- Users → CloudFront (standard horizontal) -->
         <line x1="160" y1="310" x2="218" y2="310" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <text x="189" y="302" fill="#64748b" font-size="9" text-anchor="middle">HTTPS</text>
+        <text x="189" y="302" fill="#64748b" font-size="9" text-anchor="middle">HTTPS 请求</text>
 
         <!-- CloudFront → ALB (standard horizontal) -->
         <line x1="340" y1="310" x2="398" y2="310" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
@@ -194,7 +194,7 @@
 
         <!-- Auth → DB (dashed L-shaped, auth flow) -->
         <path d="M 650,420 L 650,380 L 840,380 L 840,302" fill="none" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead-rose)"/>
-        <text x="664" y="392" fill="#e11d48" font-size="8">JWT verify</text>
+        <text x="664" y="392" fill="#e11d48" font-size="8">JWT 验证</text>
 
         <!-- =================================================================
              COMPONENT BOXES (with opaque mask, drawn AFTER arrows)
@@ -203,43 +203,43 @@
         <!-- External: Users -->
         <rect x="40" y="280" width="120" height="60" rx="6" fill="#ffffff"/>
         <rect x="40" y="280" width="120" height="60" rx="6" fill="rgba(248, 250, 252, 0.9)" stroke="#64748b" stroke-width="1.5"/>
-        <text x="100" y="305" fill="#334155" font-size="11" font-weight="600" text-anchor="middle">Users</text>
-        <text x="100" y="321" fill="#64748b" font-size="9" text-anchor="middle">Browser / Mobile</text>
+        <text x="100" y="305" fill="#334155" font-size="11" font-weight="600" text-anchor="middle">用户</text>
+        <text x="100" y="321" fill="#64748b" font-size="9" text-anchor="middle">浏览器 / 移动端</text>
 
         <!-- AWS: CloudFront -->
         <rect x="220" y="280" width="120" height="60" rx="6" fill="#ffffff"/>
         <rect x="220" y="280" width="120" height="60" rx="6" fill="rgba(255, 251, 235, 0.9)" stroke="#d97706" stroke-width="1.5"/>
         <text x="280" y="305" fill="#92400e" font-size="11" font-weight="600" text-anchor="middle">CloudFront</text>
-        <text x="280" y="321" fill="#64748b" font-size="9" text-anchor="middle">CDN</text>
+        <text x="280" y="321" fill="#64748b" font-size="9" text-anchor="middle">CDN 分发</text>
 
         <!-- API Gateway: ALB -->
         <rect x="400" y="280" width="120" height="60" rx="6" fill="#ffffff"/>
         <rect x="400" y="280" width="120" height="60" rx="6" fill="rgba(236, 254, 255, 0.9)" stroke="#0891b2" stroke-width="1.5"/>
         <text x="460" y="305" fill="#155e75" font-size="11" font-weight="600" text-anchor="middle">ALB</text>
-        <text x="460" y="321" fill="#64748b" font-size="9" text-anchor="middle">Application LB :443</text>
+        <text x="460" y="321" fill="#64748b" font-size="9" text-anchor="middle">应用负载均衡 :443</text>
 
         <!-- Backend: API Server -->
         <rect x="580" y="280" width="140" height="60" rx="6" fill="#ffffff"/>
         <rect x="580" y="280" width="140" height="60" rx="6" fill="rgba(236, 253, 245, 0.9)" stroke="#059669" stroke-width="1.5"/>
-        <text x="650" y="305" fill="#065f46" font-size="11" font-weight="600" text-anchor="middle">API Server</text>
+        <text x="650" y="305" fill="#065f46" font-size="11" font-weight="600" text-anchor="middle">API 服务器</text>
         <text x="650" y="321" fill="#64748b" font-size="9" text-anchor="middle">FastAPI :8000</text>
 
         <!-- Database: PostgreSQL -->
         <rect x="780" y="240" width="120" height="60" rx="6" fill="#ffffff"/>
         <rect x="780" y="240" width="120" height="60" rx="6" fill="rgba(245, 243, 255, 0.9)" stroke="#7c3aed" stroke-width="1.5"/>
         <text x="840" y="265" fill="#5b21b6" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL</text>
-        <text x="840" y="281" fill="#64748b" font-size="9" text-anchor="middle">RDS :5432</text>
+        <text x="840" y="281" fill="#64748b" font-size="9" text-anchor="middle">关系型数据库 :5432</text>
 
         <!-- Cache: Redis -->
         <rect x="780" y="340" width="120" height="60" rx="6" fill="#ffffff"/>
         <rect x="780" y="340" width="120" height="60" rx="6" fill="rgba(250, 245, 255, 0.9)" stroke="#9333ea" stroke-width="1.5"/>
         <text x="840" y="365" fill="#6b21a8" font-size="11" font-weight="600" text-anchor="middle">Redis</text>
-        <text x="840" y="381" fill="#64748b" font-size="9" text-anchor="middle">ElastiCache :6379</text>
+        <text x="840" y="381" fill="#64748b" font-size="9" text-anchor="middle">缓存 :6379</text>
 
         <!-- Security: Auth Provider -->
         <rect x="580" y="420" width="140" height="60" rx="6" fill="#ffffff"/>
         <rect x="580" y="420" width="140" height="60" rx="6" fill="rgba(255, 241, 242, 0.9)" stroke="#e11d48" stroke-width="1.5"/>
-        <text x="650" y="445" fill="#9f1239" font-size="11" font-weight="600" text-anchor="middle">Auth Provider</text>
+        <text x="650" y="445" fill="#9f1239" font-size="11" font-weight="600" text-anchor="middle">认证服务</text>
         <text x="650" y="461" fill="#64748b" font-size="9" text-anchor="middle">Cognito / OAuth2</text>
 
         <!-- =================================================================
@@ -250,33 +250,33 @@
              ================================================================= -->
         <rect x="240" y="510" width="480" height="80" rx="8" fill="rgba(248, 250, 252, 0.8)" stroke="#cbd5e1" stroke-width="1"/>
 
-        <text x="480" y="528" fill="#334155" font-size="10" font-weight="600" text-anchor="middle">Legend</text>
+        <text x="480" y="528" fill="#334155" font-size="10" font-weight="600" text-anchor="middle">图例</text>
 
         <!-- Row 1 -->
         <rect x="260" y="538" width="16" height="10" rx="2" fill="rgba(248, 250, 252, 0.9)" stroke="#64748b" stroke-width="1"/>
-        <text x="282" y="547" fill="#64748b" font-size="8">External</text>
+        <text x="282" y="547" fill="#64748b" font-size="8">外部系统</text>
 
         <rect x="340" y="538" width="16" height="10" rx="2" fill="rgba(255, 251, 235, 0.9)" stroke="#d97706" stroke-width="1"/>
-        <text x="362" y="547" fill="#64748b" font-size="8">Cloud Service</text>
+        <text x="362" y="547" fill="#64748b" font-size="8">云服务</text>
 
         <rect x="440" y="538" width="16" height="10" rx="2" fill="rgba(236, 254, 255, 0.9)" stroke="#0891b2" stroke-width="1"/>
-        <text x="462" y="547" fill="#64748b" font-size="8">API Gateway</text>
+        <text x="462" y="547" fill="#64748b" font-size="8">API 网关</text>
 
         <rect x="540" y="538" width="16" height="10" rx="2" fill="rgba(236, 253, 245, 0.9)" stroke="#059669" stroke-width="1"/>
-        <text x="562" y="547" fill="#64748b" font-size="8">Backend</text>
+        <text x="562" y="547" fill="#64748b" font-size="8">后端服务</text>
 
         <!-- Row 2 -->
         <rect x="260" y="558" width="16" height="10" rx="2" fill="rgba(245, 243, 255, 0.9)" stroke="#7c3aed" stroke-width="1"/>
-        <text x="282" y="567" fill="#64748b" font-size="8">Database</text>
+        <text x="282" y="567" fill="#64748b" font-size="8">数据库</text>
 
         <rect x="340" y="558" width="16" height="10" rx="2" fill="rgba(250, 245, 255, 0.9)" stroke="#9333ea" stroke-width="1"/>
-        <text x="362" y="567" fill="#64748b" font-size="8">Cache</text>
+        <text x="362" y="567" fill="#64748b" font-size="8">缓存</text>
 
         <rect x="440" y="558" width="16" height="10" rx="2" fill="rgba(255, 241, 242, 0.9)" stroke="#e11d48" stroke-width="1"/>
-        <text x="462" y="567" fill="#64748b" font-size="8">Security</text>
+        <text x="462" y="567" fill="#64748b" font-size="8">安全</text>
 
         <line x1="540" y1="563" x2="556" y2="563" stroke="#e11d48" stroke-width="1" stroke-dasharray="3,3"/>
-        <text x="562" y="567" fill="#64748b" font-size="8">Auth Flow</text>
+        <text x="562" y="567" fill="#64748b" font-size="8">认证流程</text>
       </svg>
     </div>
 
@@ -285,46 +285,46 @@
       <div class="card">
         <div class="card-header">
           <div class="card-dot emerald"></div>
-          <h3>Backend Services</h3>
+          <h3>后端服务</h3>
         </div>
         <ul>
-          <li>• API Server: FastAPI, Python 3.12</li>
-          <li>• Auto-scaling ECS Fargate</li>
-          <li>• Health check: /healthz every 30s</li>
-          <li>• Rate limiting: 1000 req/min per IP</li>
+          <li>• API 服务器: FastAPI, Python 3.12</li>
+          <li>• 自动扩缩容 ECS Fargate</li>
+          <li>• 健康检查: /healthz 每 30 秒</li>
+          <li>• 限流: 1000 请求/分钟/IP</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot violet"></div>
-          <h3>Data Layer</h3>
+          <h3>数据层</h3>
         </div>
         <ul>
-          <li>• PostgreSQL 15 on RDS (Multi-AZ)</li>
-          <li>• Redis 7 on ElastiCache (cluster mode)</li>
-          <li>• Read replicas for query offload</li>
-          <li>• Daily automated backups, 30-day retention</li>
+          <li>• PostgreSQL 15 RDS (多可用区)</li>
+          <li>• Redis 7 ElastiCache (集群模式)</li>
+          <li>• 读副本用于查询分流</li>
+          <li>• 每日自动备份, 保留 30 天</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot rose"></div>
-          <h3>Security</h3>
+          <h3>安全</h3>
         </div>
         <ul>
-          <li>• TLS 1.3 everywhere</li>
-          <li>• JWT + PKCE for auth flows</li>
-          <li>• WAF rules on CloudFront</li>
-          <li>• Security groups per service</li>
+          <li>• 全链路 TLS 1.3</li>
+          <li>• JWT + PKCE 认证流程</li>
+          <li>• CloudFront WAF 规则</li>
+          <li>• 按服务配置安全组</li>
         </ul>
       </div>
     </div>
 
     <!-- Footer -->
     <p class="footer">
-      [Project Name] • [Additional metadata]
+      [项目名称] • [附加信息]
     </p>
   </div>
 </body>

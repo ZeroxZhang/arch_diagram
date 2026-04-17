@@ -190,6 +190,20 @@ Use these semantic colors for component types:
 | Container/K8s | `rgba(239, 246, 255, 0.9)` | `#2563eb` (blue-600) | `#1e40af` |
 | External/Generic | `rgba(248, 250, 252, 0.9)` | `#64748b` (slate-500) | `#334155` |
 
+### Language
+
+**Default language: Chinese (中文).** All text in the generated diagram MUST use Chinese as the primary language, including:
+
+- **Title**: Use Chinese (e.g., "系统架构图" instead of "Architecture")
+- **Component labels**: Use Chinese names (e.g., "用户" instead of "Users", "API 服务器" instead of "API Server", "数据库" instead of "Database")
+- **Sublabels**: Technical details like port numbers and technology names can remain in English (e.g., "FastAPI :8000", "PostgreSQL :5432")
+- **Arrow labels**: Use Chinese (e.g., "请求" instead of "Request", "认证" instead of "Auth")
+- **Legend**: Use Chinese (e.g., "图例", "前端", "后端", "数据库", "云服务", "安全")
+- **Region/boundary labels**: Use Chinese (e.g., "AWS 区域: us-west-2")
+- **Summary cards**: Use Chinese for titles and descriptions
+
+Only use English when the user explicitly requests it or when the content is a proper noun / technical term that has no common Chinese equivalent.
+
 ### Typography
 
 Use the following font stack for all text:
@@ -197,7 +211,7 @@ Use the following font stack for all text:
 font-family: 'SimHei', 'Microsoft YaHei', 'PingFang SC', 'JetBrains Mono', monospace;
 ```
 
-For Chinese text, use SimHei (黑体) as the primary font. JetBrains Mono is used as the fallback monospace font for technical labels.
+SimHei (黑体) is the primary font for all Chinese text. JetBrains Mono is the fallback monospace font for technical labels and code-like content.
 
 Font sizes: 12px for component names, 9px for sublabels, 8px for annotations, 7px for tiny labels.
 
@@ -517,6 +531,7 @@ Copy and customize the template at `assets/template.html`. Key customization poi
 - [ ] **Bus-style connections**: Components with multiple outgoing connections from the same edge share a single exit point and common trunk before branching
 - [ ] **Title centered**: The diagram title is centered horizontally without a pulsing dot
 - [ ] **Light theme colors**: All colors follow the light theme palette (white background, light fills, dark strokes and text)
+- [ ] **Chinese language**: All labels, titles, legends, and arrow annotations use Chinese as the primary language (except technical terms and port numbers)
 
 If ANY item fails, fix it before outputting.
 
