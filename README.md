@@ -8,14 +8,15 @@
 
 ## Architecture Diagram Generator
 
-A professional architecture diagram generation skill that creates beautiful, light-themed system architecture diagrams as standalone HTML files with SVG graphics. Based on [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator).
+A professional architecture diagram generation skill that creates beautiful, light-themed system architecture diagrams as standalone HTML and SVG files. Based on [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator).
 
 ### Features
 
 - **Light Theme** — White background with subtle grid pattern
 - **Semantic Color Coding** — Consistent colors for frontend, backend, database, cloud, and security components
 - **Chinese as Default Language** — All labels, titles, and legends use Chinese by default
-- **Self-contained Output** — Single HTML file with embedded CSS and inline SVG
+- **Self-contained Output** — Both HTML and SVG files with embedded styles and inline graphics
+- **Dual Format** — Generates HTML (full page with cards) and standalone SVG (for embedding)
 - **No Dependencies** — Opens in any modern browser, no JavaScript required
 - **Professional Typography** — SimHei for Chinese, JetBrains Mono for technical labels
 - **Smart Layering** — Arrows render cleanly behind component boxes
@@ -50,16 +51,29 @@ architecture-diagram/
 2. **Coordinate Calculation** — Use precise formulas for arrow coordinates (bus-style for multi-connections)
 3. **SVG Generation** — Generate the final HTML/SVG following the design system
 4. **Review & Fix** — Systematic checklist to verify no overlaps, correct routing, and proper connections
+5. **SVG Extraction** — Extract the pure SVG from HTML as a standalone `.svg` file
 
 ### Output
 
-The generated diagram is a single self-contained HTML file that you can:
+The skill generates **two** self-contained files:
 
-- Open directly in any browser
-- Share with teammates
-- Include in documentation
-- Print or export to PDF
-- Host on any static site
+**HTML file** (`.html`) — Full page with:
+- Embedded CSS and inline SVG
+- Summary cards and footer metadata
+- Can be opened directly in any browser
+
+**SVG file** (`.svg`) — Standalone vector graphic:
+- Extracted from the HTML, no HTML wrapper
+- All styles and definitions inlined
+- Can be embedded in documents, presentations, or websites
+- Scalable to any resolution without quality loss
+
+Both files can be:
+- Opened directly in any browser
+- Shared with teammates
+- Included in documentation
+- Printed or exported to PDF
+- Hosted on any static site
 
 ### Acknowledgements
 
@@ -75,14 +89,15 @@ MIT
 
 ## 架构图生成器
 
-一个专业的架构图生成技能，可以创建精美的浅色主题系统架构图，输出为包含 SVG 图形的独立 HTML 文件。基于 [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator) 优化开发。
+一个专业的架构图生成技能，可以创建精美的浅色主题系统架构图，同时输出 HTML 和 SVG 两种格式的独立文件。基于 [Cocoon-AI/architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator) 优化开发。
 
 ### 特性
 
 - **浅色主题** — 白色背景配合细微网格图案
 - **语义化配色** — 前端、后端、数据库、云服务和安全组件使用一致的配色方案
 - **默认中文输出** — 所有标签、标题、图例默认使用中文
-- **自包含输出** — 单个 HTML 文件，内嵌 CSS 和 SVG
+- **自包含输出** — 同时生成 HTML 和 SVG 文件，内嵌样式和图形
+- **双格式输出** — HTML（含摘要卡片的完整页面）和 SVG（可嵌入的独立矢量图）
 - **零依赖** — 在任何现代浏览器中打开即可，无需 JavaScript
 - **专业排版** — 中文使用黑体（SimHei），技术标签使用 JetBrains Mono 等宽字体
 - **智能分层** — 箭头在组件框下方渲染，层次清晰
@@ -117,11 +132,24 @@ architecture-diagram/
 2. **坐标计算** — 使用精确公式计算箭头坐标（多连线使用总线式路由）
 3. **SVG 生成** — 按照设计系统生成最终的 HTML/SVG
 4. **审查修复** — 系统化检查清单，验证无重叠、路由正确、连接无误
+5. **SVG 提取** — 从 HTML 中提取纯 SVG 作为独立的 `.svg` 文件
 
 ### 输出
 
-生成的架构图是一个自包含的 HTML 文件，你可以：
+技能生成**两个**自包含文件：
 
+**HTML 文件**（`.html`）— 完整页面，包含：
+- 内嵌 CSS 和 SVG
+- 摘要卡片和页脚元数据
+- 可直接在浏览器中打开
+
+**SVG 文件**（`.svg`）— 独立矢量图：
+- 从 HTML 中提取，无 HTML 外壳
+- 所有样式和定义内联
+- 可嵌入文档、演示文稿或网站
+- 任意缩放不失真
+
+两个文件都可以：
 - 直接在任何浏览器中打开
 - 与团队成员分享
 - 嵌入到文档中

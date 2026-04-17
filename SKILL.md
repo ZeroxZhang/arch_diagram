@@ -169,6 +169,17 @@ Go through EACH item below. If ANY check fails, fix the SVG before outputting.
 
 If ANY check fails, modify the SVG to fix the issue, then re-run the failed check. Repeat until all checks pass.
 
+### Step 5: SVG Extraction (REQUIRED)
+
+**After completing the review in Step 4, extract the pure SVG content for standalone use.**
+
+1. Extract the `<svg>...</svg>` element from the generated HTML file
+2. Ensure the SVG is self-contained with all inline styles and definitions (markers, patterns, gradients)
+3. Remove any HTML-specific elements (`<div>`, `<style>` blocks for page layout, etc.)
+4. Add `xmlns="http://www.w3.org/2000/svg"` to the root `<svg>` element if not present
+5. Verify the standalone SVG renders correctly when opened directly in a browser
+6. Output both the HTML file and the extracted SVG file
+
 ---
 
 ## Design System
@@ -539,9 +550,18 @@ If ANY item fails, fix it before outputting.
 
 ## Output
 
-Always produce a single self-contained `.html` file with:
-- Embedded CSS (no external stylesheets except Google Fonts)
-- Inline SVG (no external images)
-- No JavaScript required (pure CSS animations)
+Always produce **two** self-contained files:
 
-The file should render correctly when opened directly in any modern browser.
+1. **HTML file** (`.html`) — the full page with:
+   - Embedded CSS (no external stylesheets except Google Fonts)
+   - Inline SVG (no external images)
+   - No JavaScript required (pure CSS animations)
+   - Summary cards and footer metadata
+
+2. **SVG file** (`.svg`) — extracted pure SVG from Step 5 with:
+   - All inline styles and definitions (markers, patterns, gradients)
+   - `xmlns="http://www.w3.org/2000/svg"` on the root element
+   - No HTML wrapper, no external dependencies
+   - Renders correctly when opened directly in any modern browser
+
+Both files should render correctly when opened directly in any modern browser.
