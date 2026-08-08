@@ -1,0 +1,51 @@
+.github/workflows/validate.yml
+  s_01f490b0ea2ffc::t_d1163f12e8f71c 1-32
+README.md
+  s_01f490b0ea2ffc::t_fde8bb41938134 11-13,17-21,23-27,30,35-53,60-72,77-96,104-105,112,122,138-140,144-148,150-154,157,162-180,187-199,204-223,231-232,239,249
+SKILL.md
+  s_01f490b0ea2ffc::t_703adf550bc935 3,6,12,14,16,18-20,22,24,26,28,30,32-39,41,43-45,47,49,51-54,56,58,60,62-67,70,72,74,76-82,84,86,88,90-93,95,97-100,103,105,107,109-110,113,115-118,121,123,125,127-131,134,136-139,141,143,145,147-158,160,162,164,166-171,175,177-178,180
+assets/template-presentation.html
+  s_01f490b0ea2ffc::t_35653feb1039b8 1-289
+assets/template.html
+  s_01f490b0ea2ffc::t_c2322f7eccf5b8 2,6,8-27,31,33-37,40-41,45-46,50-53,55-56,59-64,67-73,76-82,85-88,91-93,96-100,103-108,111-115,118-122,125-135,139-140,142-147,152-501,503-504,506-508,510-512,514-516,518-520,522-531,533-534
+evals/evals.json
+  s_01f490b0ea2ffc::t_c99dff7a12bde6 1-47
+references/design-system.md
+  s_01f490b0ea2ffc::t_b68984ffae0609 1-221
+references/layout.md
+  s_01f490b0ea2ffc::t_7257793b964ec6 1-316
+references/quality-gates.md
+  s_01f490b0ea2ffc::t_554673bd38d70f 1-217
+scripts/__init__.py
+  s_01f490b0ea2ffc::t_48891651d925e5 1
+scripts/extract_svg.py
+  s_01f490b0ea2ffc::t_29c351c61b1c3b 1-54
+scripts/render_check.py
+  s_01f490b0ea2ffc::t_b86cd221ccb577 1-221
+scripts/validate_diagram.py
+  s_01f490b0ea2ffc::t_14fc81b06f3669 1-839
+tests/__init__.py
+  s_01f490b0ea2ffc::t_4f5af36e172f57 1
+tests/test_render_check.py
+  s_01f490b0ea2ffc::t_605d4030946699 1-30
+tests/test_validate_diagram.py
+  s_01f490b0ea2ffc::t_fa4d16963951e1 1-126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7e50533fc1c2f409ba3fd471846889ebe3b212c3",
+  "prompts": {},
+  "sessions": {
+    "s_01f490b0ea2ffc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdf67-ec9c-7743-bac2-c013205ccb3b",
+        "model": "unknown"
+      },
+      "human_author": "ZeroxZhang <ZeroxZhang@users.noreply.github.com>"
+    }
+  },
+  "attestation_metadata": {},
+  "remote_transcripts": {}
+}
