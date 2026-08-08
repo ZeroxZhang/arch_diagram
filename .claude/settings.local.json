@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/bytedance/.claude/skills/onepager/**)",
+      "Bash(python3 scripts/capture.py /Users/bytedance/.claude/skills/architecture-diagram/onepage_output.html --output /Users/bytedance/.claude/skills/architecture-diagram/onepage_output.png --width 800 --height auto)",
+      "Bash(bash scripts/install_deps.sh)",
+      "Bash(pip install *)",
+      "Bash(python3 -m playwright install chromium)",
+      "Bash(pip3 install *)",
+      "Bash(python3 -c \"import playwright\")",
+      "Bash(bash *)",
+      "Bash(python3 -m venv /tmp/onepager-venv)",
+      "Bash(/tmp/onepager-venv/bin/pip install *)",
+      "Bash(/tmp/onepager-venv/bin/python -m playwright install chromium)",
+      "Bash(/tmp/onepager-venv/bin/python *)"
+    ]
+  }
+}

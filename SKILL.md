@@ -1,567 +1,180 @@
 ---
 name: architecture-diagram
-description: Create professional, light-themed architecture diagrams as standalone HTML files with SVG graphics. Use when the user asks for system architecture diagrams, infrastructure diagrams, cloud architecture visualizations, security diagrams, network topology diagrams, or any technical diagram showing system components and their relationships.
+description: Create and review professional system architecture, infrastructure, cloud, security, network-topology, deployment, and data-flow diagrams as self-contained HTML plus standalone SVG. Use this skill whenever a user wants to visualize technical components or service relationships, especially when layout, swimlanes, edge routing, multi-region grouping, presentation mode, or export quality matters.
 license: MIT
 metadata:
-  version: "3.0"
+  version: "5.0"
   author: ZeroxZhang
 ---
 
 # Architecture Diagram Skill
 
-Create professional technical architecture diagrams as self-contained HTML files with inline SVG graphics and CSS styling.
+Create readable architecture diagrams whose layout remains correct after SVG extraction, browser resizing, and presentation export. Treat layout as a deterministic pipeline, not a collection of hand-tuned coordinates.
+
+## Required resources
+
+Read these files before generating a diagram:
+
+1. `references/layout.md` — graph model, sizing, placement, ports, routing, labels, and viewBox calculation.
+2. `references/design-system.md` — themes, typography, component styles, icons, and SVG patterns.
+3. `references/quality-gates.md` — semantic SVG contract, validator usage, visual review, and output requirements.
+
+Use `assets/template.html` for standard scrollable output. For presentation output, use `assets/template-presentation.html`; changing only CSS does not create a valid 16:9 layout.
 
 ## Workflow
 
-**You MUST follow these steps in order:**
+Follow the seven stages in order. A later stage may send the work back to an earlier stage when validation exposes a layout defect.
 
-### Step 1: Layout Planning (REQUIRED)
+### 1. Resolve requirements
 
-Before writing any SVG code, create an ASCII layout plan. This prevents arrow misrouting and overlapping.
+Infer values from context when safe. Otherwise ask only for choices that materially change the diagram.
 
-```
-Format:
-[Component]  x,y  WxH  → edges: →Target1, →Target2
-```
+| Setting | Default | Options |
+|---|---|---|
+| Theme | Light | Light, Dark |
+| Language | Chinese | Chinese, English |
+| Mode | Standard | Standard, Presentation |
+| Style | Icon when available | Icon, Text-only |
+| Flow direction | Auto | LR, TB |
+| Scope | Single region | Single region, Multi-region / Multi-AZ |
 
-Example:
-```
-[Users]        x=40,y=300   W=120,H=60  → CloudFront
-[CloudFront]   x=220,y=300  W=120,H=60  → ALB
-[ALB]          x=400,y=300  W=120,H=60  → API Server, →Auth
-[API Server]   x=580,y=300  W=140,H=60  → DB, →Redis
-[DB]           x=780,y=280  W=120,H=60  → (none)
-[Redis]        x=780,y=380  W=120,H=60  → (none)
-[Auth]         x=580,y=440  W=140,H=60  → DB
-```
+Direction rules:
 
-Rules for the ASCII plan:
-- List ALL components with their intended x, y, width, height
-- List ALL connections (edges) for each component
-- Verify no two components share the same bounding box
-- Ensure arrow sources and targets have clear, non-overlapping paths
-- Identify components with multiple outgoing connections (bus-style routing needed)
+- Use `TB` when horizontal bands represent primary tiers such as 接入层 / 应用层 / 数据层.
+- Use `LR` for request or data pipelines without primary horizontal tiers.
+- Do not use `layer` ambiguously. `rank` means graph depth, `lane` means a visual band, and `group` means a containing boundary such as Region, AZ, cluster, or trust domain.
 
-### Step 2: Coordinate Calculation
+### 2. Normalize the graph
 
-Use these formulas to calculate arrow coordinates. **NEVER guess coordinates.**
+Assign every object a stable ASCII ID before choosing coordinates.
 
-#### Horizontal arrows (left → right)
-```
-source: x=sx, y=sy, width=sw, height=sh
-target: x=tx, y=ty, width=tw, height=th
+- Node: `id`, label, sublabel, type, icon, rank, lane, group.
+- Edge: `id`, source, target, kind, label, preferred ports, optional bus ID.
+- Lane: `id`, label, order.
+- Group: `id`, label, parent group, padding.
 
-arrow_start_x = sx + sw          // right edge of source
-arrow_end_x   = tx - 2           // 2px gap before target left edge
-arrow_y       = sy + sh / 2      // vertical center of source
-              = ty + th / 2      // must also equal vertical center of target (aligned rows)
-```
+Treat message buses and gateways as real nodes when they have independent semantics. Preserve cycles; mark their return edges for an outer route channel.
 
-#### Horizontal arrows (right → left)
-```
-arrow_start_x = sx               // left edge of source
-arrow_end_x   = tx + tw + 2      // 2px gap after target right edge
-arrow_y       = sy + sh / 2
+### 3. Write the layout plan
+
+Place this plan as an HTML comment immediately before the SVG. List every node and edge.
+
+```text
+MODE standard  THEME light  DIRECTION TB  GRID base=10 major=20
+LANE access       order=0 label="接入层"
+GROUP aws-west    parent=- label="AWS 区域: us-west-2"
+NODE api          rank=1 lane=application group=aws-west x=420 y=240 w=140 h=60 type=backend icon=server
+EDGE api-db       api:right -> db:left kind=sync label="SQL" bus=api-data
 ```
 
-#### Vertical arrows (top → bottom)
-```
-source: x=sx, y=sy, width=sw, height=sh
-target: x=tx, y=ty, width=tw, height=th
+The plan is the source of truth for graph completeness; SVG metadata must use the same IDs.
 
-arrow_x       = sx + sw / 2      // horizontal center
-arrow_start_y = sy + sh          // bottom edge of source
-arrow_end_y   = ty - 2           // 2px gap before target top edge
-```
+### 4. Run the layout pipeline
 
-#### Vertical arrows (bottom → top)
-```
-arrow_x       = sx + sw / 2
-arrow_start_y = sy               // top edge of source
-arrow_end_y   = ty + th + 2      // 2px gap after target bottom edge
-```
+Use the algorithms and constants in `references/layout.md`:
 
-#### Arrow label positioning
-```
-Horizontal arrow label:  label_x = (arrow_start_x + arrow_end_x) / 2
-                         label_y = arrow_y - 8     // 8px above the arrow line
+1. Measure text and determine node sizes.
+2. Assign ranks and order nodes to reduce crossings.
+3. Size lanes and nested groups from their content.
+4. Assign coordinates using actual rank widths and node heights.
+5. Assign source and target ports.
+6. Route orthogonal edges around inflated obstacles.
+7. Place labels, legend, and title; then derive the viewBox from the union of all geometry.
 
-Vertical arrow label:    label_x = arrow_x + 14    // 14px to the right
-                         label_y = (arrow_start_y + arrow_end_y) / 2 + 4
-```
+Do not write SVG routes until node, lane, and group geometry is stable.
 
-#### Bus-style multi-connection routing (CRITICAL)
+### 5. Generate semantic SVG and HTML
 
-When a component has **multiple outgoing connections** from the same edge (e.g., API Server → DB and API Server → Redis), all connections MUST share a single exit point on the source component, then branch out. This prevents arrows from fanning out directly from the component edge.
+Start from the mode-specific template and preserve its semantic hooks:
 
-**Rule:** All arrows from the same source edge share ONE common start point, then diverge via orthogonal paths.
+- `data-role="boundary|lane|edge-route|bus-trunk|component|edge-label|legend"`
+- stable `data-id`, `data-edge-id`, `data-source`, and `data-target`
+- explicit geometry in `data-bbox` and route points in `data-points`
+- SVG-local styles, font stack, markers, title, and description
 
-```
-Example: API Server (x=580, y=280, W=140, H=60) connects to:
-  - DB (x=780, y=240, W=120, H=60)
-  - Redis (x=780, y=340, W=120, H=60)
+Render in this order:
 
-Common exit point: right edge center of API Server = (720, 310)
-Branch point: x = 740 (20px to the right of the exit point)
-
-Arrow to DB:   M 720,310 L 740,310 L 740,270 L 778,270
-Arrow to Redis: M 720,310 L 740,310 L 740,370 L 778,370
+```text
+background -> boundaries -> lanes -> edge routes / bus trunks
+-> component masks and boxes -> component text/icons
+-> edge labels -> legend
 ```
 
-The shared segment from the exit point to the branch point creates a clean "bus" trunk. Each branch then routes orthogonally to its target.
+Draw a shared bus trunk once. Draw each branch once from its junction to its target. Use a neutral trunk if branches have different semantics.
 
-**For vertical bus-style (top/bottom edge):**
-```
-Common exit point: bottom edge center = (center_x, y + H)
-Branch point: y = exit_y + 20 (20px below the exit point)
+### 6. Extract and validate
 
-Arrow to Target1: M center_x,exit_y L center_x,branch_y L target1_center_x,branch_y L target1_center_x,target1_top
-Arrow to Target2: M center_x,exit_y L center_x,branch_y L target2_center_x,branch_y L target2_center_x,target2_top
-```
+Extract the exact inline SVG:
 
-### Step 3: Generate SVG
-
-Follow the design system below to generate the final HTML/SVG.
-
-### Step 4: Review & Fix (REQUIRED)
-
-**After generating the SVG, you MUST perform a systematic review before output.** Different AI models may produce incorrect connections, overlapping elements, or routing errors. This step catches and fixes those issues.
-
-#### Review Checklist
-
-Go through EACH item below. If ANY check fails, fix the SVG before outputting.
-
-**A. Component Overlap Check**
-- For every pair of components (A, B), verify their bounding boxes do NOT intersect:
-  ```
-  overlap = !(A.x + A.W <= B.x || B.x + B.W <= A.x || A.y + A.H <= B.y || B.y + B.H <= A.y)
-  ```
-  If `overlap` is true for any pair, adjust positions.
-
-**B. Arrow Routing Check**
-- For each arrow, trace its full path (including L-shaped or U-shaped segments) and verify:
-  - The path does NOT pass through any component that is neither its source nor its target
-  - The start point is on the source component's boundary (not inside it)
-  - The end point is 2px before the target component's boundary (not inside it)
-  - The arrow does not overlap with another arrow's path for more than 10px (unless they share a bus trunk)
-
-**C. Bus-style Connection Check**
-- For every component with 2+ outgoing connections from the same edge:
-  - Verify all connections share a SINGLE exit point on the source component
-  - Verify there is a common trunk segment before branching
-  - Verify each branch routes cleanly to its target without crossing other branches
-
-**D. Connection Correctness Check**
-- Verify each arrow matches the intended connection from the layout plan
-- Verify no arrow is missing (every edge in the plan has a corresponding SVG element)
-- Verify no extra arrows exist that aren't in the plan
-- Verify arrow directions are correct (source → target, not reversed)
-
-**E. Legend Check**
-- Verify the legend is centered horizontally within the SVG viewBox
-- Verify the legend does not overlap any component or boundary
-- Verify all component types used in the diagram appear in the legend
-
-**F. Label Readability Check**
-- Verify no two arrow labels overlap each other
-- Verify no arrow label overlaps a component box
-- Verify all text is legible (sufficient contrast against background)
-
-If ANY check fails, modify the SVG to fix the issue, then re-run the failed check. Repeat until all checks pass.
-
-### Step 5: SVG Extraction (REQUIRED)
-
-**After completing the review in Step 4, extract the pure SVG content for standalone use.**
-
-1. Extract the `<svg>...</svg>` element from the generated HTML file
-2. Ensure the SVG is self-contained with all inline styles and definitions (markers, patterns, gradients)
-3. Remove any HTML-specific elements (`<div>`, `<style>` blocks for page layout, etc.)
-4. Add `xmlns="http://www.w3.org/2000/svg"` to the root `<svg>` element if not present
-5. Verify the standalone SVG renders correctly when opened directly in a browser
-6. Output both the HTML file and the extracted SVG file
-
----
-
-## Design System
-
-### Color Palette (Light Theme)
-
-Use these semantic colors for component types:
-
-| Component Type | Fill (rgba) | Stroke | Text |
-|---------------|-------------|--------|------|
-| Frontend | `rgba(236, 254, 255, 0.9)` | `#0891b2` (cyan-600) | `#155e75` |
-| Backend | `rgba(236, 253, 245, 0.9)` | `#059669` (emerald-600) | `#065f46` |
-| Database | `rgba(245, 243, 255, 0.9)` | `#7c3aed` (violet-600) | `#5b21b6` |
-| Cache/Redis | `rgba(250, 245, 255, 0.9)` | `#9333ea` (purple-600) | `#6b21a8` |
-| AWS/Cloud | `rgba(255, 251, 235, 0.9)` | `#d97706` (amber-600) | `#92400e` |
-| Security | `rgba(255, 241, 242, 0.9)` | `#e11d48` (rose-600) | `#9f1239` |
-| Message Bus | `rgba(255, 247, 237, 0.9)` | `#ea580c` (orange-600) | `#9a3412` |
-| API Gateway | `rgba(236, 254, 255, 0.9)` | `#0891b2` (cyan-600) | `#155e75` |
-| Container/K8s | `rgba(239, 246, 255, 0.9)` | `#2563eb` (blue-600) | `#1e40af` |
-| External/Generic | `rgba(248, 250, 252, 0.9)` | `#64748b` (slate-500) | `#334155` |
-
-### Language
-
-**Default language: Chinese (中文).** All text in the generated diagram MUST use Chinese as the primary language, including:
-
-- **Title**: Use Chinese (e.g., "系统架构图" instead of "Architecture")
-- **Component labels**: Use Chinese names (e.g., "用户" instead of "Users", "API 服务器" instead of "API Server", "数据库" instead of "Database")
-- **Sublabels**: Technical details like port numbers and technology names can remain in English (e.g., "FastAPI :8000", "PostgreSQL :5432")
-- **Arrow labels**: Use Chinese (e.g., "请求" instead of "Request", "认证" instead of "Auth")
-- **Legend**: Use Chinese (e.g., "图例", "前端", "后端", "数据库", "云服务", "安全")
-- **Region/boundary labels**: Use Chinese (e.g., "AWS 区域: us-west-2")
-- **Summary cards**: Use Chinese for titles and descriptions
-
-Only use English when the user explicitly requests it or when the content is a proper noun / technical term that has no common Chinese equivalent.
-
-### Typography
-
-Use the following font stack for all text:
-```css
-font-family: 'SimHei', 'Microsoft YaHei', 'PingFang SC', 'JetBrains Mono', monospace;
+```bash
+python3 scripts/extract_svg.py output.html output.svg
 ```
 
-SimHei (黑体) is the primary font for all Chinese text. JetBrains Mono is the fallback monospace font for technical labels and code-like content.
+Run the deterministic quality gate on both artifacts:
 
-Font sizes: 12px for component names, 9px for sublabels, 8px for annotations, 7px for tiny labels.
-
-**Title:** The diagram title MUST be centered horizontally, use a larger font size (20px), and use SimHei for Chinese characters. Do NOT include a pulsing dot indicator next to the title.
-
-### Grid Alignment
-
-**ALL component x, y coordinates MUST be aligned to a 20px grid.**
-
-This means every x and y value must be divisible by 20 (e.g., 40, 60, 80, 100, 120...).
-
-Width and height values must be divisible by 10.
-
-This ensures:
-- Components visually align in clean rows and columns
-- Arrow calculations are predictable
-- No accidental overlaps from misaligned positions
-
-### Visual Elements
-
-**Background:** `#ffffff` (white) with subtle grid pattern:
-```svg
-<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
-</pattern>
+```bash
+python3 scripts/validate_diagram.py output.html --strict
+python3 scripts/validate_diagram.py output.svg --strict
+python3 scripts/validate_diagram.py output.html --compare output.svg --strict
 ```
 
-**Component boxes:** Rounded rectangles (`rx="6"`) with 1.5px stroke, semi-transparent light fills.
+Fix the layout model or algorithm that caused a failure. Do not silence a check or move a single label without re-running the complete gate.
 
-**Security groups:** Dashed stroke (`stroke-dasharray="4,4"`), transparent fill, rose color.
+### 7. Rendered review
 
-**Region boundaries:** Larger dashed stroke (`stroke-dasharray="8,4"`), amber color, `rx="12"`.
+Run the browser-backed geometry probe when Chrome/Chromium is available:
 
-### Masking arrows behind fills
-
-Since component boxes use semi-transparent fills, arrows behind them may show through. To fully mask arrows, draw an opaque background rect (e.g., `fill="#ffffff"`) at the same position before drawing the semi-transparent styled rect on top:
-```svg
-<rect x="X" y="Y" width="W" height="H" rx="6" fill="#ffffff"/>
-<rect x="X" y="Y" width="W" height="H" rx="6" fill="rgba(236, 253, 245, 0.9)" stroke="#059669" stroke-width="1.5"/>
+```bash
+python3 scripts/render_check.py output.html --width 1440 --height 900
+python3 scripts/render_check.py output.svg --width 1000 --height 760
+# Presentation mode:
+python3 scripts/render_check.py output.html --width 1280 --height 720
 ```
 
-**Auth/security flows:** Dashed lines in rose color (`#e11d48`).
+Then open both files and inspect the actual rendered result.
 
-**Message buses / Event buses:** Small connector elements between services. Use orange color (`#ea580c` stroke, `rgba(255, 247, 237, 0.9)` fill):
-```svg
-<rect x="X" y="Y" width="120" height="20" rx="4" fill="rgba(255, 247, 237, 0.9)" stroke="#ea580c" stroke-width="1"/>
-<text x="CENTER_X" y="Y+14" fill="#9a3412" font-size="7" text-anchor="middle">Kafka / RabbitMQ</text>
-```
+- Standard: desktop and narrow viewport; horizontal scrolling is allowed only inside the diagram region.
+- Presentation: exact 1280×720 viewBox with no clipping.
+- Verify long Chinese/English labels, marker tips, tooltips, dark theme, and standalone SVG fonts.
+- Inspect at 100% and 200% zoom.
 
-### Spacing Rules
+The static validator checks declared geometry. Browser review remains required because final glyph metrics vary by platform.
 
-**CRITICAL:** When stacking components vertically, ensure proper spacing to avoid overlaps:
+## Layout invariants
 
-- **Standard component height:** 60px for services, 80-120px for larger components
-- **Minimum vertical gap between components:** 40px
-- **Minimum horizontal gap between components:** 40px
-- **Inline connectors (message buses):** Place IN the gap between components, not overlapping
+These are hard constraints; the detailed calculations live in `references/layout.md`.
 
-**Example vertical layout:**
-```
-Component A: y=70,  height=60  → ends at y=130
-Gap:         y=130 to y=170   → 40px gap, place bus at y=140 (20px tall)
-Component B: y=170, height=60  → ends at y=230
-```
+- Base grid: 10px for node coordinates and sizes. Major grid: 20px for lanes, groups, rank origins, and viewBox dimensions.
+- Node gap: at least 40px on the axis where their projections overlap.
+- Route clearance: at least 20px from unrelated nodes and 8px between parallel routes.
+- Source endpoint: on the declared source boundary. Target endpoint: 2px before the declared target boundary, with the final segment pointing toward it.
+- Route shape: absolute orthogonal `M/L` segments only; no diagonal segment unless the user explicitly requests free-form routing.
+- Labels: reserve a label corridor and keep a 4px gap from components, boundaries, and other labels.
+- Lanes: reserve a label gutter; nodes must lie inside the lane content rectangle.
+- Groups: derive size from contained geometry plus title gutter and padding. Layout inner groups before outer groups.
+- Standard legend: centered horizontally and at least 20px below all content boundaries.
+- Presentation legend: bottom-right with 20px right/bottom margins; it is not subject to the standard centering rule.
+- Standard viewBox: content-derived, at least 1000×680, snapped up to the 20px major grid.
+- Presentation viewBox: exactly `0 0 1280 720`.
 
-**Wrong:** Placing a message bus at y=160 when Component B starts at y=170 (causes overlap)
-**Right:** Placing a message bus at y=140, centered in the 40px gap (y=130 to y=170)
+## Language and accessibility
 
-### Legend Placement
+Chinese is the default for titles, node labels, lane labels, edge labels, legends, and summaries. Keep proper nouns, protocols, ports, and technologies in their conventional form.
 
-**CRITICAL:** The legend MUST be centered horizontally within the SVG viewBox.
+Every SVG must include:
 
-- Calculate the total width of the legend content (all items in a row or grid)
-- Set the legend's starting x so that it is centered: `legend_x = (viewBox_width - legend_total_width) / 2`
-- Place legend at least 20px below the lowest boundary or component
-- Expand SVG viewBox height if needed to accommodate
-- Wrap the legend in a subtle container box for visual grouping:
-
-```svg
-<rect x="LEGEND_X - 10" y="LEGEND_Y - 10" width="LEGEND_W + 20" height="LEGEND_H + 20" rx="8" fill="rgba(248, 250, 252, 0.8)" stroke="#cbd5e1" stroke-width="1"/>
-```
-
-**Example:**
-```
-viewBox_width = 960
-Legend content width = 400
-legend_x = (960 - 400) / 2 = 280
-```
-
-**Wrong:** Legend positioned at x=740, aligned to the right edge
-**Right:** Legend centered at x=280, symmetrically placed within the viewBox
-
-### Layout Structure
-
-1. **Header** - Centered title (no pulsing dot), subtitle
-2. **Main SVG diagram** - Contained in rounded border card
-3. **Summary cards** - Grid of 3 cards below diagram with key details
-4. **Footer** - Minimal metadata line
-
-### Component Box Pattern
-
-```svg
-<rect x="X" y="Y" width="W" height="H" rx="6" fill="#ffffff"/>
-<rect x="X" y="Y" width="W" height="H" rx="6" fill="FILL_COLOR" stroke="STROKE_COLOR" stroke-width="1.5"/>
-<text x="CENTER_X" y="Y+20" fill="TEXT_COLOR" font-size="11" font-weight="600" text-anchor="middle">LABEL</text>
-<text x="CENTER_X" y="Y+36" fill="#64748b" font-size="9" text-anchor="middle">sublabel</text>
-```
-
-### Info Card Pattern
-
-```html
-<div class="card">
-  <div class="card-header">
-    <div class="card-dot COLOR"></div>
-    <h3>Title</h3>
-  </div>
-  <ul>
-    <li>• Item one</li>
-    <li>• Item two</li>
-  </ul>
-</div>
-```
-
----
-
-## Arrow Reference
-
-### Arrow z-order
-
-Draw connection arrows **early in the SVG** (right after the background grid) so they render behind component boxes. SVG elements are painted in document order.
-
-**Render order:**
-1. Background grid
-2. Region boundaries (dashed boxes)
-3. Security group boundaries
-4. **All arrows / connections** (drawn first, behind everything)
-5. Component boxes (opaque background + styled rect, drawn last on top)
-6. Text labels
-7. Legend
-
-### Arrow Marker
-
-```svg
-<marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-  <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
-</marker>
-```
-
-### Arrow Types
-
-#### 1. Standard Arrow (data flow)
-```svg
-<line x1="START_X" y1="Y" x2="END_X" y2="Y"
-      stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-<text x="LABEL_X" y="LABEL_Y" fill="#64748b" font-size="9" text-anchor="middle">HTTPS</text>
-```
-Use the coordinate formulas from Step 2 above.
-
-#### 2. Bidirectional Arrow (request/response, sync)
-```svg
-<!-- Main direction -->
-<line x1="START_X" y1="Y-6" x2="END_X" y2="Y-6"
-      stroke="#059669" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-<!-- Return direction -->
-<line x1="END_X" y1="Y+6" x2="START_X" y2="Y+6"
-      stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-```
-Two parallel lines, offset by 6px vertically. Top line has primary color, bottom line has neutral color.
-
-#### 3. Dashed Arrow (auth/security flow)
-```svg
-<line x1="START_X" y1="Y" x2="END_X" y2="Y"
-      stroke="#e11d48" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
-<text x="LABEL_X" y="LABEL_Y" fill="#e11d48" font-size="8" text-anchor="middle">JWT</text>
-```
-
-#### 4. Async/Event Arrow (message queue, pub/sub)
-```svg
-<line x1="START_X" y1="Y" x2="END_X" y2="Y"
-      stroke="#ea580c" stroke-width="1.5" stroke-dasharray="2,4" marker-end="url(#arrowhead)"/>
-<text x="LABEL_X" y="LABEL_Y" fill="#ea580c" font-size="8" text-anchor="middle">async</text>
-```
-Uses `dasharray="2,4"` (short dashes) to distinguish from auth flows.
-
-#### 5. Numbered Step Arrow (sequential flow)
-```svg
-<line x1="START_X" y1="Y" x2="END_X" y2="Y"
-      stroke="#0891b2" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-<circle cx="LABEL_X" cy="LABEL_Y-2" r="8" fill="#ffffff" stroke="#0891b2" stroke-width="1"/>
-<text x="LABEL_X" y="LABEL_Y+1" fill="#0891b2" font-size="8" text-anchor="middle" font-weight="600">1</text>
-```
-Number inside a small circle. Use for step-by-step flows (1, 2, 3...).
-
-#### 6. L-Shaped Orthogonal Arrow
-Use when a direct line would pass through another component.
-
-```svg
-<!-- Source at right edge, target below and to the right -->
-<path d="M START_X START_Y
-         L START_X MID_Y
-         L END_X MID_Y
-         L END_X END_Y"
-      fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-```
-Where:
-- `MID_Y = START_Y + (END_Y - START_Y) / 2`  (midpoint vertically)
-- The path goes: right → down → right → down (with arrowhead at the very end)
-
-For L-shaped with one turn (source above, target offset horizontally):
-```svg
-<path d="M CENTER_X START_Y
-         L CENTER_X TURN_Y
-         L END_X TURN_Y
-         L END_X END_Y"
-      fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-```
-Where `TURN_Y = START_Y + 30` (30px down from source bottom, then horizontal, then down to target).
-
-#### 7. U-Shaped Orthogonal Arrow (loopback, return flow)
-Use when the target is above the source or to route around obstacles.
-
-```svg
-<path d="M START_X START_Y
-         L START_X EXTEND_Y
-         L SIDE_X EXTEND_Y
-         L SIDE_X TARGET_Y
-         L END_X TARGET_Y"
-      fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-```
-Where:
-- `EXTEND_Y = max(START_Y, TARGET_Y) + 40` (go 40px below both components)
-- `SIDE_X` is the horizontal bypass position (either left of both or right of both)
-
-#### 8. Bus-style Multi-connection Arrow (CRITICAL)
-Use when a component connects to **multiple targets** from the same edge. All connections share a single exit point, then branch via orthogonal paths.
-
-```svg
-<!-- Source: API Server right edge center = (720, 310) -->
-<!-- Branch point: x=740 (20px right of exit) -->
-
-<!-- Shared trunk + branch to DB -->
-<path d="M 720,310 L 740,310 L 740,270 L 778,270"
-      fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-
-<!-- Shared trunk + branch to Redis -->
-<path d="M 720,310 L 740,310 L 740,370 L 778,370"
-      fill="none" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-```
-
-**Key rules:**
-- The exit point is always at the center of the source component's edge
-- The branch point is 20px away from the exit point (outside the component)
-- Each branch routes orthogonally from the branch point to its target
-- The shared trunk segment (exit → branch point) creates a clean visual "bus"
-- Do NOT draw separate arrows fanning out from different points on the source edge
-
-### Arrow Label Positioning for Orthogonal Arrows
-
-For L-shaped or U-shaped paths, place the label at the **corner point** or at the **midpoint of the longest segment**:
-
-```svg
-<path d="..." id="route1"/>
-<text x="CORNER_X + 10" y="CORNER_Y - 6" fill="#64748b" font-size="8">label</text>
-```
-
-Offset 10px right and 6px above the corner to avoid overlapping the line.
-
----
-
-## Dynamic viewBox Calculation
-
-Calculate viewBox dimensions based on your layout:
-
-```
-viewBox_width  = rightmost_component_x + rightmost_component_width + 60
-viewBox_height = lowest_element_y + lowest_element_height + 40
-```
-
-Add extra padding for:
-- Region boundaries: add 20px margin on all sides
-- Legend: add 120px below the lowest component
-- Title area inside SVG: add 30px at the top
-
-Minimum viewBox: `0 0 1000 680`. Expand as needed.
-
-Round dimensions UP to the nearest multiple of 20 for clean alignment.
-
----
-
-## Template
-
-Copy and customize the template at `assets/template.html`. Key customization points:
-
-1. Update the `<title>` and header text
-2. Calculate viewBox dimensions using the rules above
-3. Write the ASCII layout plan as an HTML comment in the SVG
-4. Add component boxes using grid-aligned coordinates
-5. Draw connection arrows using the coordinate formulas (bus-style for multi-connections)
-6. Center the legend horizontally within the viewBox
-7. Update the three summary cards
-8. Update footer metadata
-
----
-
-## Pre-Output Checklist
-
-**BEFORE returning the HTML file, verify each item:**
-
-- [ ] **No overlapping components**: Check that every component's bounding box (x, y, W, H) is unique and doesn't intersect with any other component
-- [ ] **Arrows connect to correct edges**: Each arrow starts at the source component's boundary (not its center) and ends 2px before the target component's boundary
-- [ ] **No arrow passes through a component**: Visually trace each arrow path — it should not cross through any component box that is neither its source nor its target
-- [ ] **All coordinates on 20px grid**: Every component x and y is divisible by 20; every width and height is divisible by 10
-- [ ] **Legend centered**: The legend module is horizontally centered within the SVG viewBox
-- [ ] **Legend outside all boundaries**: The legend's top-left y position is greater than the y+height of every region boundary, security group, and cluster box
-- [ ] **Arrows rendered behind components**: All `<line>` and `<path>` elements for arrows appear in the SVG before all `<rect>` elements for component boxes
-- [ ] **Label positions readable**: Arrow labels don't overlap any component box or other label
-- [ ] **Bus-style connections**: Components with multiple outgoing connections from the same edge share a single exit point and common trunk before branching
-- [ ] **Title centered**: The diagram title is centered horizontally without a pulsing dot
-- [ ] **Light theme colors**: All colors follow the light theme palette (white background, light fills, dark strokes and text)
-- [ ] **Chinese language**: All labels, titles, legends, and arrow annotations use Chinese as the primary language (except technical terms and port numbers)
-
-If ANY item fails, fix it before outputting.
-
----
+- `xmlns="http://www.w3.org/2000/svg"`
+- numeric intrinsic `width` and `height` matching the viewBox
+- `role="img"` and `aria-labelledby`
+- one overall `<title>` and `<desc>`
+- one native `<title>` as the first child of every component group
+- an SVG-local font stack; do not rely on HTML inheritance or remote fonts
 
 ## Output
 
-Always produce **two** self-contained files:
+Always return two self-contained files:
 
-1. **HTML file** (`.html`) — the full page with:
-   - Embedded CSS (no external stylesheets except Google Fonts)
-   - Inline SVG (no external images)
-   - No JavaScript required (pure CSS animations)
-   - Summary cards and footer metadata
+1. `.html` — inline SVG, embedded CSS, optional summary cards, no runtime JavaScript, no external fonts/images/stylesheets.
+2. `.svg` — the exact extracted SVG, with local styles/defs/tooltips and no HTML dependency.
 
-2. **SVG file** (`.svg`) — extracted pure SVG from Step 5 with:
-   - All inline styles and definitions (markers, patterns, gradients)
-   - `xmlns="http://www.w3.org/2000/svg"` on the root element
-   - No HTML wrapper, no external dependencies
-   - Renders correctly when opened directly in any modern browser
-
-Both files should render correctly when opened directly in any modern browser.
+Report the chosen mode, direction, validator result, and any intentionally allowed crossing or exception.
